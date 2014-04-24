@@ -1,6 +1,6 @@
 (ns collab-2014-04.core
   (:require [clojure.core.logic :as l]
-            [clojure.core.logic.fd :as fd]))
+            [clojure.core.logic.fd :as fd])))
 
 ;; Solutions by: <individual or group names here>
 
@@ -20,9 +20,22 @@
 ;; representable with ordinary letters.
 ;;
 ;;  ^1 http://en.wikipedia.org/wiki/Roman_numerals#Subtractive_principle
+(defn roman->int
+  "Converts roman numeral to int (probably poorly)"
+  [roman]
+  (let [letters {"L" 50, "M" 1000, "C" 100, "V" 5, "X" 10, "I" 1, "D" 500}
+        numvec (map #(get letters (str %)) roman)
+        index (take (count numvec) (iterate inc 0))]
+    (apply + (for [i index]
+               (let [seq (take 2 (drop i numvec))]
+                 (if (not (nil? (second seq)))
+                   (if (< (first seq) (second seq))
+                     (* -1 (first seq))
+                     (first seq))
+                 (last numvec)))))))
 
 (defn four-clojure-92 [roman]
-  42)
+  (roman->int roman))
 
 ;; http://www.4clojure.com/problem/178
 ;;
