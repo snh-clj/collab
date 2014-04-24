@@ -21,8 +21,92 @@
 ;;
 ;;  ^1 http://en.wikipedia.org/wiki/Roman_numerals#Subtractive_principle
 
+
+
+
+(def pair-map
+  {"MM" 1000
+   "MD" 1000
+   "MC" 1000
+   "ML" 1000
+   "MX" 1000
+   "MV" 1000
+   "MI" 1000
+   "DC" 500
+   "CM" 900
+   "CD" 400
+   "CC" 100
+   "CX" 100
+   "XC" 90
+   "CL" 100
+   "CV" 100
+   "CI" 100
+   "LX" 50
+   "XL" 40
+   "XX" 10
+   "XI" 10
+   "IX" 9
+   "XV" 10
+   "VI" 5
+   "IV" 4
+   "II" 1
+   "I " 1
+   "V " 5
+   "X " 10
+   "L " 50
+   "C " 100
+   "D " 500
+   "M " 1000})
+
+(def valid-subtractions
+  {"CM" -100
+   "CD" -100
+   "XC" -10
+   "XL" -10
+   "IX" -1
+   "IV" -1})
+
+(def roman-vals
+  {"M" 1000
+   "D" 500
+   "C" 100
+   "L" 50
+   "X" 10
+   "V" 5
+   "I" 1})
+
+
+(defn pair->dec [pair]
+  (or (valid-subtractions pair)
+      (roman-vals (subs pair 0 1))
+      0))
+
+(defn accum-pair [acc pair]
+  (+ acc (pair->dec pair)))
+
+(defn chunk-roman [roman]
+  (map #(apply str %) (partition 2 1 (char-array roman))))
+
+(defn roman->dec [roman]
+  (reduce accum-pair 0 (chunk-roman (str roman " "))))))
+
 (defn four-clojure-92 [roman]
-  42)
+  (roman->dec roman))
+
+
+
+(defn first-attempt [roman]
+  (cond
+   (empty? roman) 0
+   (two-len-map (subs roman 0 2)) (+ (two-len-map (subs roman 0 2)) (first-attempt (subs roman 2)))
+   (one-len-map (subs roman 0 1)) (+ (one-len-map (subs roman 0 1)) (first-attempt (subs roman 1)))))
+
+
+(defn roman-val-2- [roman]
+  (reduce #(+ %1 (or (pair-map %2) 0))
+          0
+          (map #(apply str %) (partition 2 1 (char-array roman)))))
+
 
 ;; http://www.4clojure.com/problem/178
 ;;
