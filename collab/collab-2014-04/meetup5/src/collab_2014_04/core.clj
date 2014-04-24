@@ -5,13 +5,12 @@
 ;; Solutions by: <individual or group names here>
 
 ;;; Clojure reference:
-;; http://ClojureDocs.org
+;; http://org
 
 
 ;; http://www.4clojure.com/problem/92
 ;;
-;; Roman numerals are easy to recognize, but not everyone knows all
-;; the rules necessary to work with them. Write a function to parse a
+;; Roman numerals are easy to recognize, but not everyone knows al
 ;; Roman-numeral string and return the number it represents.
 ;;
 ;; You can assume that the input will be well-formed, in upper-case,
@@ -21,11 +20,32 @@
 ;;
 ;;  ^1 http://en.wikipedia.org/wiki/Roman_numerals#Subtractive_principle
 
-(defn four-clojure-92 [roman]
-  42)
+(def roman {"I" 1 "V" 5 "X" 10 "M" 1000 "C" 100 "L" 50})
+
+(defn add-roman
+  [n coll]
+  (println "add-roman: n:" n ", coll:" coll)
+  (let [l (roman (str (first coll)))
+        r (roman (str (second coll)))]
+   (if (< l r) (- n l) (+ l n))))
+  
+
+(defn four-clojure-92 "doc string" [rs]
+  (let [myseq (seq rs)
+        _ (println "myseq: " myseq)
+        myseq (concat myseq (list (last myseq)))
+        _ (println "second myseq:" myseq)
+        part (partition 2 1 myseq)]
+  (println "part:" part)
+  (reduce add-roman 0 part)))
+
+(println "done")
+
+
+
 
 ;; http://www.4clojure.com/problem/178
-;;
+
 ;; Following on from Recognize Playing Cards, determine the best poker
 ;; hand that can be made with five cards. The hand rankings are listed
 ;; below for your convenience.
@@ -40,8 +60,19 @@
 ;; * Pair: Two cards have the same rank
 ;; * High card: None of the above conditions are met
 
+(defn numeric [c] 
+  (try (Integer/parseInt (str c)) (catch Exception e nil)))
+
+(defn make-str [pair]
+  [(str (first pair)) (str (second pair))])
+
 (defn four-clojure-178 [hand]
-  :fifty-two-pickup)
+  (let [hand-seq (map seq hand)
+        hand-str (map make-str hand-seq)
+        _ (println "hand-str:" hand-str)]
+   (cond (and (reduce (comp = first) hand-str)) :straight-flush)
+
+  ))
 
 ;; Magic Squares
 ;;
