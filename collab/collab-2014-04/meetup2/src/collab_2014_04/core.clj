@@ -21,8 +21,66 @@
 ;;
 ;;  ^1 http://en.wikipedia.org/wiki/Roman_numerals#Subtractive_principle
 
+(def nums
+  [["M" 1000]
+   ["IM" 999]
+   ["VM" 995]
+   ["XM" 990]
+   ["LM" 950]
+   ["CM" 900]
+   ["D" 500]
+   ["ID" 499]
+   ["VD" 495]
+   ["XD" 490]
+   ["LD" 450]
+   ["CD" 400]
+   ["C" 100]
+   ["IC" 99]
+   ["VC" 95]
+   ["XC" 90]
+   ["L" 50]
+   ["IL" 49]
+   ["VL" 45]
+   ["XL" 40]
+   ["X" 10]
+   ["IX" 9]
+   ["V" 5]
+   ["IV" 4]
+   ["I" 1]])
+
+(defn match [s]
+  (let [res   (take 1 (filter (fn [n] (.startsWith s (first n))) nums))]
+    (prn res (type res))
+    res)
+)
+
+(defn match2 [s]
+  (first (filter (fn [[n]] (.startsWith s n)) nums)))
+
 (defn four-clojure-92 [roman]
-  42)
+  (loop [s roman
+         n 0]
+    (let [[[d v]] (match s)
+          _ (prn d v)
+          new-s (subs s (.length d))
+          new-n (+ n v)]
+      (if (empty? new-s)
+        new-n
+        (recur new-s new-n))
+      )
+    ))
+
+(defn parse2 [roman]
+  (loop [s roman
+         n 0]
+    (let [[d v] (match2 s)
+          new-s (subs s (.length d))
+          new-n (+ n v)]
+      (if (empty? new-s)
+        new-n
+        (recur new-s new-n))
+      )
+    ))
 
 ;; http://www.4clojure.com/problem/178
 ;;
@@ -31,14 +89,49 @@
 ;; below for your convenience.
 ;;
 ;; * Straight flush: All cards in the same suit, and in sequence
+(declare is-flush is-straight)
+
+(defn is-straight-flush [hand]
+  (and (is-flush hand)
+       (is-straight hand)))
+
 ;; * Four of a kind: Four of the cards have the same rank
-;; * Full House: Three cards of one rank, the other two of another rank
+(defn four-of-a-kind [hand]
+  (->> hand
+       (group-by second)
+       (filter (fn [[k v]] (= 4 (count v))))
+       empty?
+       not)
+  #_(not (empty? (filter (fn [[k v]] (= 4 (count v))) (group-by second hand)))))
+
+;; * Full House: Three cards of one rank, the other two of another
+;; * rank
+(defn full-house [hand]
+  ())
+
 ;; * Flush: All cards in the same suit
+(defn is-flush [hand]
+  (apply =  (map first hand)))
+
 ;; * Straight: All cards in sequence (aces can be high or low, but not both at once)
 ;; * Three of a kind: Three of the cards have the same rank
 ;; * Two pair: Two pairs of cards have the same rank
 ;; * Pair: Two cards have the same rank
+
+(defn make-rank-checker [n]
+  (fn [hand]
+      (->> hand
+       (group-by second)
+       (filter (fn [[k v]] (= n (count v))))
+       empty?
+       not)))
+
+(def three-of-a-kind (make-rank-checker 3))
+(def pair (make-rank-checker 2))
+
 ;; * High card: None of the above conditions are met
+
+
 
 (defn four-clojure-178 [hand]
   :fifty-two-pickup)
