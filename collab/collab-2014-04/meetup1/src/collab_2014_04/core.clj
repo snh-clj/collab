@@ -21,8 +21,20 @@
 ;;
 ;;  ^1 http://en.wikipedia.org/wiki/Roman_numerals#Subtractive_principle
 
+(def symbols {\I 1 \V 5 \X 10 \L 50 \C 100 \D 500 \M 1000})
+
+(defn parse [str]
+  (loop [[cur next & more] str total 0]
+    (let [a (symbols cur 0)
+          b (symbols next 0)]
+      (if cur
+        (if (>= a b)
+          (recur (cons next more) (+ total a))
+          (recur more (+ total b (- a))))
+        total))))
+
 (defn four-clojure-92 [roman]
-  42)
+  (parse roman))
 
 ;; http://www.4clojure.com/problem/178
 ;;
@@ -40,8 +52,26 @@
 ;; * Pair: Two cards have the same rank
 ;; * High card: None of the above conditions are met
 
+(defn pair? [hand]
+  )
+(defn two-pair? [hand])
+(defn triple? [hand])
+(defn quadruple? [hand])
+(defn full-house? [hand])
+(defn straight? [hand])
+(defn flush? [[[s _] :as hand]]
+  (when (every?
+         (fn [[s2 _]] (= s2 s))
+         hand)
+    :flush))
+(defn straight-flush? [hand])
+
 (defn four-clojure-178 [hand]
-  :fifty-two-pickup)
+  (or (royal-flush? hand)
+      (flush? hand)
+      (quadruple? hand)
+      (straight? hand)
+      :high-card))
 
 ;; Magic Squares
 ;;
