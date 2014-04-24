@@ -22,7 +22,32 @@
 ;;  ^1 http://en.wikipedia.org/wiki/Roman_numerals#Subtractive_principle
 
 (defn four-clojure-92 [roman]
-  42)
+  (let [vals {\D 500 \C 100 \X 10 \V 5 \I 1 \L 50 \M 1000}]
+    (reduce (fn [total [this next]]
+              (println "this: " this "next: " next)
+              (if (< this next)
+                (- total this)
+                (+ total this)))
+            0
+            (partition 2 1
+                       (conj (mapv vals roman) 0)))))
+
+((fn [roman]
+    (let [vals {\D 500 \C 100 \X 10 \V 5 \I 1 \L 50 \M 1000}]
+      (reduce (fn [total [this next]]
+                (println "this: " this "next: " next)
+                (if (< this next)
+                  (- total this)
+                  (+ total this)))
+              0
+              (partition 2 1
+                         (conj (mapv vals roman) 0)))))
+ "DCCCXXVII")
+
+;; IV == 4
+;; XC == 90
+;; CM == 900
+;; XL == 40
 
 ;; http://www.4clojure.com/problem/178
 ;;
@@ -41,7 +66,10 @@
 ;; * High card: None of the above conditions are met
 
 (defn four-clojure-178 [hand]
-  :fifty-two-pickup)
+  (let [hand (map (fn [[s r]] [s ({\A 12 \K 11 \Q 10 \J 9 \T 8 \9 7 \8 6 \7 5 \6 4 \5 3 \4 2 \3 1 \2 1} r)]) hand)
+        
+        ]
+    hand))
 
 ;; Magic Squares
 ;;
