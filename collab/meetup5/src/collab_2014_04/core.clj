@@ -40,8 +40,23 @@
 ;; * Pair: Two cards have the same rank
 ;; * High card: None of the above conditions are met
 
+(defn high-card [hand]
+  :high)
+
+
 (defn four-clojure-178 [hand]
-  :fifty-two-pickup)
+  (let [suits (map first hand)
+        ranks (map second hand)
+        sfreqs (sort (vals (frequencies suits)))
+        rfreqs (sort (vals (frequencies ranks)))]
+    (cond
+     (= rfreqs [2 3]) :full-house
+     (= rfreqs [1 4]) :four-of-a-kind
+     (= sfreqs [5]) :flush
+     (= rfreqs [1 2 2]) :two-pair
+     (= rfreqs [1 1 3]) :three-of-a-kind
+     (= rfreqs [1 1 1 2]) :pair
+     :else :high-card)))
 
 ;; Magic Squares
 ;;
