@@ -40,6 +40,53 @@
 ;; * Pair: Two cards have the same rank
 ;; * High card: None of the above conditions are met
 
+(defn flush? [hand]
+  (= 1 (count (into #{} (for [c hand] (first c))))))
+
+(defn ranks [hand]
+  (map second hand))
+
+(defn matches [hand]
+  (sort > (vals (frequencies (ranks hand)))))
+
+(def card-value
+  {\2 2
+   \3 3
+   \4 4
+   \5 5
+   \6 6
+   \7 7
+   \8 8
+   \9 9
+   \T 10
+   \J 11
+   \Q 12
+   \K 13})
+
+(defn card-value-ace-high [card]
+  (if-let [val (card-value card)]
+    val
+    14))
+
+(defn card-value-ace-low [card]
+  (if-let [val (card-value card)]
+    val
+    1))
+
+(defn straight? [hand]
+  (let [ranked-hand (ranks hand)]
+    (or
+     (->> ranked-hand
+          (map card-value-ace-high)
+          (sort)
+          (partition 2 1)
+          (every? (fn [[a b]] (= 1 (- b a)))))
+     (->> ranked-hand
+          (map card-value-ace-low)
+          (sort)
+          (partition 2 1)
+          (every? (fn [[a b]] (= 1 (- b a))))))))
+
 (defn four-clojure-178 [hand]
   :fifty-two-pickup)
 
