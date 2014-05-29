@@ -40,7 +40,28 @@
 ;; * Pair: Two cards have the same rank
 ;; * High card: None of the above conditions are met
 
+(defn flush? [hand]
+  (when (= (count (set (map first hand))) 1) 
+    :flush))
+
+(defn straight? [hand]
+  #_(map second hand)
+  nil)
+
+(defn of-a-kind? [num kw]
+  (fn [hand] (when (some (fn [x] (= (count x) num))) (map second (group-by identity (map second hand)))
+                   kw)))
+
+(def four-of-a-kind? (of-a-kind? 4 :four-of-a-kind))
+(def three-of-a-kind? (of-a-kind? 3 :three-of-a-kind))
+(def pair? (of-a-kind? 2 :pair))
+
 (defn four-clojure-178 [hand]
+  (or (four-of-a-kind? hand)
+      (flush? hand)
+      (straight? hand)
+      (three-of-kind? hand)
+      (pair? hand))
   :fifty-two-pickup)
 
 ;; Magic Squares
