@@ -41,7 +41,39 @@
 ;; * High card: None of the above conditions are met
 
 (defn four-clojure-178 [hand]
-  :fifty-two-pickup)
+  (let [suits (map first hand)
+        ranks (map second hand)
+        flush? (every? #(= (first suits) %) suits)
+        rank-counts
+         (sort (map count (partition-by identity (sort ranks))))
+        full-house? (= '(2 3) rank-counts)
+        pair? (= '(1 1 1 2) rank-counts)
+        two-pair? (= '(1 2 2) rank-counts)
+        three-oak? (= '(1 1 3) rank-counts)
+        four-oak? (= '(1 4) rank-counts)
+        straight? false
+        straight-flush? false
+    (cond
+     straight-flush? :straight-flush
+     four-oak? :four-of-a-kind
+     full-house? :full-house
+     flush? :flush
+     straight? :straight
+     three-oak? :three-of-a-kind
+     two-pair? :two-pair
+     pair? :pair
+     :else :high-card)))
+
+(def hc ["HA" "D2" "H3" "C9" "DJ"])
+(def pair ["HA" "HQ" "SJ" "DA" "HT"])
+(def two-pair ["HA" "DA" "HQ" "SQ" "HT"])
+(def three-oak ["HA" "DA" "CA" "HJ" "HT"])
+(def straight ["HA" "DK" "HQ" "HJ" "HT"])
+(def mo-straight ["HA" "H2" "S3" "D4" "C5"])
+(def flush ["HA" "HK" "H2" "H4" "HT"])
+(def fh ["HA" "DA" "CA" "HJ" "DJ"])
+(def foak ["HA" "DA" "CA" "SA" "DJ"])
+(def sf ["HA" "HK" "HQ" "HJ" "HT"])
 
 ;; Magic Squares
 ;;
