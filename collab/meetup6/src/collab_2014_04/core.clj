@@ -1,6 +1,7 @@
 (ns collab-2014-04.core
   (:require [clojure.core.logic :as l]
-            [clojure.core.logic.fd :as fd]))
+            [clojure.core.logic.fd :as fd]
+	    [clojure.math.combinatorics :as combo]))
 
 ;; Solutions by: <individual or group names here>
 
@@ -58,6 +59,14 @@
 ;;
 ;; P.S. For those already comfortable with Clojure, this problem has a
 ;; nice solution using core.logic.
+
+(def numbers (take 9 (range 1 10)))
+
+(defn make-triples
+  []
+  (keep
+    #(when (= 15 (apply + %)) %)
+    (combo/combonations numbers 3)))
 
 (defn magic-squares []
   [[[1 2 3] [4 5 6] [7 8 9]]
