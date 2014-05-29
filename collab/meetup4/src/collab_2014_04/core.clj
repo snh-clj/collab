@@ -60,9 +60,12 @@
 ;; nice solution using core.logic.
 
 (defn magic-squares []
-  [[[1 2 3] [4 5 6] [7 8 9]]
-   [[9 8 7] [6 5 4] [3 2 1]]
-   ,,,])
+  (let [a (for [i (range 1 10) j (range 1 10) k (range 1 10)] [i j k])
+        b (filter #(= 3 (count (distinct %))) a)
+        c (filter #(= 15 (reduce + %)) b)]
+    c
+    )
+)
 
 (comment
   ;; Run this first
@@ -76,3 +79,4 @@
   (test/run-test four-clojure-178)
   (test/run-test magic-squares)
 )
+
