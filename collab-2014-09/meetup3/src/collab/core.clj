@@ -43,6 +43,24 @@
 ;;  representations below:
 
 (comment
+  [[0 0 0 0]
+   [0 0 0 0]
+   [0 0 0 0]
+   [0 0 0 0]]
+
+  ((0 0 0 0)
+   (0 0 0 0)
+   (0 0 0 0)
+   (0 0 0 0))
+
+  (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+
+  [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+
+  {[0 0] 0
+   [0 1] 0
+   "etc." "etc."}
+
   #_an_implementation_here
   #_another_implementation_here
   #_maybe_a_third_implementation_here
@@ -50,6 +68,7 @@
   )
 
 ;;  3. Pick one of the above board representations...
+;; vector of vectors!
 
 ;; It might also be a good idea to think about how you want to
 ;; represent directional moves. You'll need this later. :)
@@ -59,10 +78,15 @@
 
 (defn new-board
   "Returns a new, empty board structure. Takes an optional size
-parameter, defaulting to 4x4."
+parameter, defaulting to 4x4.
+  [[0 0 0 0]
+   [0 0 0 0]
+   [0 0 0 0]
+   [0 0 0 0]]"
   ([] (new-board 4))
   ([size]
-     #_implementation_here))
+     (vec (repeat size
+                  (vec (repeat size 0))))))
 
 ;;  5. Create a 'print-board function which prints out the board in a
 ;;  format useful for debug or game play.
@@ -70,24 +94,43 @@ parameter, defaulting to 4x4."
 (defn print-board
   "Prints a human readable version of the provided board state."
   [board]
-  #_implementation_here)
+  (doseq [row board]
+    (println row)))
 
 ;;  6. Create a 'add-random function
+
+(defn coords
+  ([] (coords 4))
+  ([n]
+     (for [r (range n) c (range n)]
+       [r c])))
 
 (defn add-random
   "Takes a board and returns that board with one of the blank spaces
 filled with either a 2 (90% of the time) or a 4 (10% of the time)."
   [board]
-  #_implementation_here)
+  (let [two-or-four (if (< (rand) 0.9) 2 4)
+        empties (filter #(= 0 (get-in board %))
+                        (coords (count board)))
+        victim (rand-nth empties)]
+    (assoc-in board victim two-or-four)))
 
 ;;  7. create an 'init-board function seeding a new-board with random additons
 
 (defn init-board
   "Returns a new board, populated with two rounds of add-random."
   []
-  #_implementation_here)
+  (add-random (add-random (new-board))))
 
 ;;  8. Create 'move-direction function
+
+(defn rot-ccw
+  "Rotate the given board 90 degrees counter-clockwise"
+  [board]
+  (reverse (apply map vector board)))
+
+(defn rot-ccw-times [board times]
+  (nth (iterate rot-ccw board) times))
 
 (defn move-direction
   "Takes a board and a direction and collapses blanks and duplicated
