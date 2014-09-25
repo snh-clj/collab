@@ -44,7 +44,22 @@
 
 (comment
   #_an_implementation_here
+  ;; vectors
+  [[4 0 0 0]
+   [8 0 0 2]
+   [4 2 0 0]
+   [256 32 4 0]]
+
   #_another_implementation_here
+  {[0 0] 4
+   [0 1] 8
+   [3 1] 2
+   [0 2] 4
+   [1 2] 2
+   [0 3] 256
+   [1 3] 32
+   [2 3] 4}
+
   #_maybe_a_third_implementation_here
   #_have_you_considered_a_fourth? ;-)
   )
@@ -57,12 +72,27 @@
 ;;  4. Create a 'new-board function which returns an empty board using
 ;;  the representation you chose.
 
+(defn rand-tile
+  "Generate a single random tile value where x,y position is
+   in size,size grid and value is 2 or 4"
+  [size]
+  (let [x (rand-int size)
+        y (rand-int size)
+        n (if (> (rand) 0.9) 4 2)]
+    [[x y] n]))
+
 (defn new-board
   "Returns a new, empty board structure. Takes an optional size
 parameter, defaulting to 4x4."
-  ([] (new-board 4))
-  ([size]
-     #_implementation_here))
+  ([] (new-board 4 2))
+  ([size] (new-board size 2))
+  ([size tiles]
+     (let [empty-board (vec  (repeat size (vec (repeat size 0))))
+           starting-tiles (take tiles (distinct (repeatedly (* 10 tiles) #(rand-tile size))))]
+       (reduce (fn [board [[x y] n]]
+                 (assoc-in board [y x] n))
+               empty-board
+               starting-tiles))))
 
 ;;  5. Create a 'print-board function which prints out the board in a
 ;;  format useful for debug or game play.
@@ -70,6 +100,9 @@ parameter, defaulting to 4x4."
 (defn print-board
   "Prints a human readable version of the provided board state."
   [board]
+  (println "[")
+  (doseq [row board] (println row))
+  (println "]")
   #_implementation_here)
 
 ;;  6. Create a 'add-random function
@@ -89,13 +122,44 @@ filled with either a 2 (90% of the time) or a 4 (10% of the time)."
 
 ;;  8. Create 'move-direction function
 
+(defn collapse-row
+  [row]
+  (loop [x (first row)
+         row (rest row)
+         result []]
+    (if (or (nil? x) (nil? row))
+      result
+      (let [y (first row)]
+        #_(prn x y row result)
+        (if (= x y)
+          (recur (second row) (rest (rest row)) (conj result (+ x y)))
+          (recur y (rest row) (conj result x)))))))
+
+(defn move-row-left
+  [row]
+  (let [size (count row)
+        no-zeros (remove zero? row)
+        collapsed (collapse-row no-zeros)
+        new-row (first  (partition size size (repeat size 0) collapsed))]
+    (or new-row
+        (repeat size 0))))
+
+(defn move-row
+  [row dir]
+  (case dir
+    :left (move-row-left row)
+    :right (-> row reverse move-row-left reverse)))
+
 (defn move-direction
   "Takes a board and a direction and collapses blanks and duplicated
 elements in the specified direction.
 Note: Collapsing is a single pass. A row containing '4 4 8 0' will
 result in '8 8 0 0', not '16 0 0 0'."
   [board dir]
-  #_implementation_here)
+  (if (#{:left :right} dir)
+    (map (fn [row] (move-row row dir)) board)
+    (prn "Up and down are bad!"))
+)
 
 ;;  9. create a 'play-round function which takes a board, a direction, collapsing, adding random and printing
 
