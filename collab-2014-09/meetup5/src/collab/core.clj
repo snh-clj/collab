@@ -70,7 +70,7 @@ parameter, defaulting to 4x4."
 (defn print-board
   "Prints a human readable version of the provided board state."
   [board]
-  #_implementation_here)
+  #_foo)
 
 ;;  6. Create a 'add-random function
 
@@ -78,14 +78,25 @@ parameter, defaulting to 4x4."
   "Takes a board and returns that board with one of the blank spaces
 filled with either a 2 (90% of the time) or a 4 (10% of the time)."
   [board]
-  #_implementation_here)
+  (loop [board board]
+    (let [x (rand-int 4)
+          y (rand-int 4)
+          num (if (= (rand-int 10) 9) 4 2)]
+      (if (= (get (get board x) y) 0)
+        (vec (map vec (partition 4 (assoc (vec (flatten board)) (+ y (* x 4)) num))))
+        (recur board))))
 
-;;  7. create an 'init-board function seeding a new-board with random additons
+  ;;  7. create an 'init-board function seeding a new-board with
+  ;;  random additons
+  )
 
 (defn init-board
   "Returns a new board, populated with two rounds of add-random."
   []
-  #_implementation_here)
+  [[0 0 0 0]
+   [0 0 0 0]
+   [0 0 0 0]
+   [0 0 0 0]])
 
 ;;  8. Create 'move-direction function
 
