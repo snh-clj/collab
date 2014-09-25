@@ -39,6 +39,51 @@
 ;; following steps are also just guidelines but may be helpful to
 ;; guide you on the path.
 
+(apply mapv vector)
+
+(def start-board [[0 2 0 0] [0 2 0 0] [0 0 4 0] [0 0 4 0]])
+
+(defn rotate-to-cols [row-vec] (apply mapv vector row-vec)) 
+
+(defn rotate-to-rows [col-vec] (vec (reverse (apply map vector (map reverse col-vec)))))
+
+(map second (filter first (map-indexed (fn [idx t] [(zero? t) idx]) (first start-board)))
+
+
+(defn row-zeros [row-vec]
+   (map second
+        (filter first (map-indexed
+                        (fn [idx t] [(zero? t) idx])
+                        row-vec))))
+
+(map row-zeros start-board)
+
+((0 2 3) () () ())
+[[0 2 0 0] ...]
+
+
+(defn over? [board]
+  (nil? (some zero? (mapcat identity board))))
+
+(defn update-from-seq [start-board update-seq]
+  (assoc-in start-board [0 (some-> update-seq
+                                   seq
+                                   (nth 0)
+                                   rand-nth)] 2)
+
+(defn row-parts [row-vec]
+  (partition 2 1 (remove zero? row-vec)))
+
+(defn collapse-row-parts [row-parts]
+  (loop [v row-parts, s 0, r []]
+    (if (< s (count v))
+      (let [elem (nth v s)]
+        (cond (apply = elem)    (recur v (inc (inc s)) (conj r (apply + elem)))
+	      (apply not= elem) (recur v (inc s) (conj r (first elem)))
+	      :else r))
+      r)))
+
+
 ;;  2. Consider several board representations and type in these
 ;;  representations below:
 
@@ -78,7 +123,8 @@ parameter, defaulting to 4x4."
   "Takes a board and returns that board with one of the blank spaces
 filled with either a 2 (90% of the time) or a 4 (10% of the time)."
   [board]
-  #_implementation_here)
+  (let [row (first board)]
+    ())
 
 ;;  7. create an 'init-board function seeding a new-board with random additons
 
