@@ -62,23 +62,37 @@
 parameter, defaulting to 4x4."
   ([] (new-board 4))
   ([size]
-     #_implementation_here))
+     (repeat size (repeat size 0))))
 
 ;;  5. Create a 'print-board function which prints out the board in a
 ;;  format useful for debug or game play.
 
+(defn print-row
+  "Prints a row of a board."
+  [row]
+  (let [length (count row)
+        format-spec (apply str (repeat length "%5d"))]
+    (println (apply format format-spec row))))
+
 (defn print-board
   "Prints a human readable version of the provided board state."
   [board]
-  #_implementation_here)
+  (dorun  (map print-row board)))
 
 ;;  6. Create a 'add-random function
+
+(defn count-blanks
+  [board]
+  (->> board
+      (flatten)
+      (filter zero?)
+      (count)))
 
 (defn add-random
   "Takes a board and returns that board with one of the blank spaces
 filled with either a 2 (90% of the time) or a 4 (10% of the time)."
   [board]
-  #_implementation_here)
+  (let [blanks (count-blanks board)]))
 
 ;;  7. create an 'init-board function seeding a new-board with random additons
 
