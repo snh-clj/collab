@@ -43,6 +43,9 @@
 ;;  representations below:
 
 (comment
+  [[0 0 0 0] [0 0 0 0] [0 0 0 0] [0 0 0 0]]
+  [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+  {[0 0] 0 [0 1] 0 [0 2] 0 ... 0}
   #_an_implementation_here
   #_another_implementation_here
   #_maybe_a_third_implementation_here
@@ -50,6 +53,8 @@
   )
 
 ;;  3. Pick one of the above board representations...
+
+  [[0 0 0 0] [0 0 0 0] [0 0 0 0] [0 0 0 0]]
 
 ;; It might also be a good idea to think about how you want to
 ;; represent directional moves. You'll need this later. :)
@@ -62,7 +67,7 @@
 parameter, defaulting to 4x4."
   ([] (new-board 4))
   ([size]
-     #_implementation_here))
+     (vec (repeat size (vec (repeat size 0))))))
 
 ;;  5. Create a 'print-board function which prints out the board in a
 ;;  format useful for debug or game play.
@@ -70,7 +75,7 @@ parameter, defaulting to 4x4."
 (defn print-board
   "Prints a human readable version of the provided board state."
   [board]
-  #_implementation_here)
+  (doall (map println board)))
 
 ;;  6. Create a 'add-random function
 
@@ -78,16 +83,36 @@ parameter, defaulting to 4x4."
   "Takes a board and returns that board with one of the blank spaces
 filled with either a 2 (90% of the time) or a 4 (10% of the time)."
   [board]
-  #_implementation_here)
+  (let [size (count board)
+        blanks (for [y (range size)
+                     x (range size)
+                     :when (zero? (get-in board [x y]))]
+                 [x y])
+        location (rand-nth blanks)
+        randvalue (rand-nth (into [4] (repeat 9 2)))]
+    (assoc-in board location randvalue)))
 
 ;;  7. create an 'init-board function seeding a new-board with random additons
 
 (defn init-board
   "Returns a new board, populated with two rounds of add-random."
   []
-  #_implementation_here)
+  (-> (new-board) add-random add-random)
+  )
 
 ;;  8. Create 'move-direction function
+
+(defn shift-left
+  "Take a single vector and shift and combine left"
+  [row]
+  (->> row
+       (remove zero?)
+       (partition-by identity)
+       (mapcat #(partition-all 2 %))
+       (map #(apply + %))
+       (#(concat % (repeat 0)))
+       (take (count row))
+       vec))
 
 (defn move-direction
   "Takes a board and a direction and collapses blanks and duplicated
