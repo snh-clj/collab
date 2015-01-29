@@ -18,18 +18,35 @@
                  ;;      be made public
                  (get "RT_API_KEY")))
 
-(def api-base "http://api.rottentomatoes.com/api/public/v1.0")
+(def api-base "http://api.rottentomatoes.com/api/public/v2.0")
 
 (def title "The Sting")
 
+(defn print-cast
+  [cast-url]
+;  (println "cast-url:" cast-url)
+  (let [rq (str cast-url "?apikey=" api-key)]
+;    (println "rq:" rq)
+    (.get request rq
+          (fn [err resp]
+            (let [response-data (-> resp .-body js/JSON.parse js->clj)
+                  cast (get response-data "cast")]
+;              (println "cast:" cast)
+              (dorun (map #(println :name (get % "name") "plays"
+                                    :character (get % "characters"))
+                          cast)))))))
+
+
 (defn -main [& _args]
-  (let [rq (str api-base "/movies.json" "?q=" title "&apikey=" api-key)]
+  (let [rq (str api-base "/movies.json" "?q=" (first _args) "&page_limit=1" "&apikey=" api-key)]
+;    (println "movie-rq:" rq)
     (.get request rq
           (fn [err resp]
             (let [response-data (-> resp .-body js/JSON.parse js->clj)
                   movies (get response-data "movies")]
-              (dorun (map #(println :title (get % "title") "\n\t"
-                                    :cast-query-url (get-in % ["links" "cast"]))
+              (dorun (map #(do (println :title (get % "title") )
+                               (print-cast (get-in % ["links" "cast"])))
                           movies)))))))
+      
 
 (set! *main-cli-fn* -main)
