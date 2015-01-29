@@ -22,14 +22,40 @@
 
 (def title "The Sting")
 
-(defn -main [& _args]
-  (let [rq (str api-base "/movies.json" "?q=" title "&apikey=" api-key)]
-    (.get request rq
+(defn api
+  [full-url callback-fn]
+    (.get request full-url
           (fn [err resp]
-            (let [response-data (-> resp .-body js/JSON.parse js->clj)
-                  movies (get response-data "movies")]
-              (dorun (map #(println :title (get % "title") "\n\t"
-                                    :cast-query-url (get-in % ["links" "cast"]))
-                          movies)))))))
+            (let [response-data (-> resp .-body js/JSON.parse js->clj)]
+              (callback-fn response-data)))))
+
+(defn movie-url
+  [title]
+  (str api-base "/movies.json" "?q=" title "&apikey=" api-key))
+
+(defn add-cast-key
+  [url]
+  (str url "?apikey=" api-key))
+
+(defn -main [& _args]
+  (api
+   (movie-url (first _args))
+   (fn [i]
+     (let [movies (get i "movies")
+           first-movie (first movies)
+           cast-url (get-in first-movie ["links" "cast"])]
+       (println (get (first movies) "title"))
+       (println (add-cast-key cast-url))
+       (api
+        (add-cast-key cast-url)
+        (fn [n]
+          (println (keys n))
+          (let [cast (get n "cast")]
+            (doall
+             (map
+              #(println (get % "name"))
+              cast)))))))))
+
+
 
 (set! *main-cli-fn* -main)
