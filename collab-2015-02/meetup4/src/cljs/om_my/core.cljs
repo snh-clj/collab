@@ -13,6 +13,7 @@
 (defonce app-state
   (atom {:text "Go to your figwheel repl and run (om-my.core/get-movie-by-title \"The Sting\")"
          :abridged_cast []
+         :synopsis "This is the synopsis"
          :cast []}))
 
 
@@ -46,6 +47,21 @@
       first
       k))
 
+(defn get-cast-from-movie
+  "http://api.rottentomatoes.com/api/public/v1.0/movies/771181360/cast.json"
+  [movie-id]
+  (println :movie-id movie-id)
+  (utils/edn-xhr
+   {:method :post
+    :url "/rt"
+    :data (str "movies/" movie-id "/cast.json?test=1")
+    :on-error (fn [response] (println response))
+    :on-complete (fn [{:keys [cast]}]
+                   (println :happy cast)
+                   (om/update! (om/root-cursor app-state)
+                               :abridged_cast
+                               (shuffle cast)))}))
+
 (defn get-movie-by-title
   "Query RT's movies.json endpoint for a movie by title.
 
@@ -69,15 +85,21 @@
                                  :text
                                  (get-movie-response-key response :title))
                      (om/update! (om/root-cursor app-state)
+                                 :synopsis
+                                 (get-movie-response-key response :synopsis))
+                     (om/update! (om/root-cursor app-state)
                                  :abridged_cast
-                                 (get-movie-response-key response :abridged_cast)))})))
+                                 (get-movie-response-key response :abridged_cast))
+                     (get-cast-from-movie (get-movie-response-key response :id)))})))
 
 (om/root
  (fn [app owner]
    (reify
      om/IRender
      (render [_]
-       (dom/h1 nil (:text app)))))
+       (dom/div nil
+        (dom/h1 nil (:text app))
+        (dom/p nil (:synopsis app))))))
  app-state
  {:target (. js/document (getElementById "heading"))})
 
@@ -86,6 +108,9 @@
    (reify
      om/IRender
      (render [_]
-       (display-list (map :name (:abridged_cast app))))))
+       (display-list
+          (map
+            (fn [x] (str (:name x)))
+            (:abridged_cast app))))))
  app-state
  {:target (. js/document (getElementById "abridged_cast"))})
