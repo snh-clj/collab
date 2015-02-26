@@ -14,7 +14,7 @@
    :headers {"Content-Type" "application/edn"}
    :body (pr-str data)})
 
-(defn get-api-key []
+(defmacro get-api-key []
   (if-let [api-key (System/getenv "RT_API_KEY")]
     (when (< 0 (count api-key))
       api-key)))

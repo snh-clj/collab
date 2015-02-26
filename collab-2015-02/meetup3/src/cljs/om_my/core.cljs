@@ -1,4 +1,5 @@
 (ns ^:figwheel-always om-my.core
+    (:require-macros [om-my.back-end :as om-my])
     (:require [om.core :as om :include-macros true]
               [om.dom :as dom :include-macros true]
               [om-my.utils :as utils]
@@ -9,9 +10,11 @@
 (println "Edits to this text should show up in your developer console.")
 
 ;; define your app data so that it doesn't get over-written on reload
+(def api-key (om-my/get-api-key))
 
-(defonce app-state
-  (atom {:text "Go to your figwheel repl and run (om-my.core/get-movie-by-title \"The Sting\")"
+(def app-state
+  (atom {:api-key api-key
+         :text "Go to your figwheel repl and run (om-my.core/get-movie-by-title \"The Sting\")"
          :abridged_cast []
          :cast []}))
 
@@ -46,6 +49,25 @@
       first
       k))
 
+(defn update-details [response]
+  (fn [current]
+    (-> current
+        (assoc-in [:all] response)
+        (assoc-in [:text] (str "The title -- " (get-movie-response-key response :title)))
+        (assoc-in [:abridged_cast] (get-movie-response-key response :abridged_cast))
+        (assoc-in [:cast] (get response :cast)))))
+
+(defn get-cast
+  [response]
+  (let [id (get-movie-response-key response :id)]
+    (utils/edn-xhr
+     {:method :post
+      :url "/rt"
+      :data (str "movies/" id "/cast.json?")
+      :on-error (fn [response] (println response))
+      :on-complete #(om/transact! (om/root-cursor app-state)
+                                  (update-details (merge response %)))})))
+
 (defn get-movie-by-title
   "Query RT's movies.json endpoint for a movie by title.
 
@@ -61,16 +83,7 @@
       :url "/rt"
       :data (str "movies.json?q=" title)
       :on-error (fn [response] (println response))
-      :on-complete (fn [response]
-                     (om/update! (om/root-cursor app-state)
-                                 :all
-                                 response)
-                     (om/update! (om/root-cursor app-state)
-                                 :text
-                                 (get-movie-response-key response :title))
-                     (om/update! (om/root-cursor app-state)
-                                 :abridged_cast
-                                 (get-movie-response-key response :abridged_cast)))})))
+      :on-complete get-cast})))
 
 (om/root
  (fn [app owner]
@@ -86,6 +99,8 @@
    (reify
      om/IRender
      (render [_]
-       (display-list (map :name (:abridged_cast app))))))
+       (display-list (map :name (:cast app))))))
  app-state
  {:target (. js/document (getElementById "abridged_cast"))})
+
+(om-my.core/get-movie-by-title "The Sting")
