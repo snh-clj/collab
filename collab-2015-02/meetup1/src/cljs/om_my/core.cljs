@@ -13,8 +13,8 @@
 (defonce app-state
   (atom {:text "Go to your figwheel repl and run (om-my.core/get-movie-by-title \"The Sting\")"
          :abridged_cast []
-         :cast []}))
-
+         :cast []
+         :poster ""}))
 
 (defn display-list [items]
   (apply dom/ul #js {:title "This is how you set attributes."}
@@ -51,7 +51,7 @@
 
    After receiving a response, update app-state as following:
      (:all @app-state) is the entire response
-     (:text @app-state) is the movie name
+     (:text @app-state) is the movie namne
      (:abridged_cast @app-state) is the abridged cast vector
   "
   [title]
@@ -70,14 +70,20 @@
                                  (get-movie-response-key response :title))
                      (om/update! (om/root-cursor app-state)
                                  :abridged_cast
-                                 (get-movie-response-key response :abridged_cast)))})))
+                                 (get-movie-response-key response :abridged_cast))
+                     (om/update! (om/root-cursor app-state)
+                                 :poster
+                                 (:detailed (get-movie-response-key response :posters))))})))
 
 (om/root
  (fn [app owner]
    (reify
      om/IRender
      (render [_]
-       (dom/h1 nil (:text app)))))
+       (dom/div nil (dom/h1 nil (:text app))
+                (dom/button #js {:onClick (fn [e]
+                                            (get-movie-by-title
+                                             (.-value (. js/document (getElementById "search")))))} "click me!")))))
  app-state
  {:target (. js/document (getElementById "heading"))})
 
@@ -86,6 +92,15 @@
    (reify
      om/IRender
      (render [_]
-       (display-list (map :name (:abridged_cast app))))))
+       (display-list (map #(str (:name %) "-" (apply str (interpose ", " (:characters %)))) (:abridged_cast app))))))
  app-state
  {:target (. js/document (getElementById "abridged_cast"))})
+
+(om/root
+ (fn [app owner]
+   (reify
+     om/IRender
+     (render [_]
+       (dom/img #js {:src (:poster app)}))))
+ app-state
+ {:target (. js/document (getElementById "poster"))})
