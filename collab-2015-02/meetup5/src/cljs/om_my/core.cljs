@@ -70,14 +70,16 @@
                                  (get-movie-response-key response :title))
                      (om/update! (om/root-cursor app-state)
                                  :abridged_cast
-                                 (get-movie-response-key response :abridged_cast)))})))
+                                 (get-movie-response-key response :abridged_cast))
+                     )})))
 
 (om/root
  (fn [app owner]
    (reify
      om/IRender
      (render [_]
-       (dom/h1 nil (:text app)))))
+       (dom/h1 nil (:text app))
+       (dom/img #js {:src (-> app :all :movies first :posters :detailed)}))))
  app-state
  {:target (. js/document (getElementById "heading"))})
 
@@ -89,3 +91,15 @@
        (display-list (map :name (:abridged_cast app))))))
  app-state
  {:target (. js/document (getElementById "abridged_cast"))})
+
+(om/root
+ (fn [app owner]
+   (reify
+     om/IRender
+     (render [_]
+       (dom/div nil
+                (dom/input #js {:id "query_input" :placeholder "Enter movie"})
+                (dom/button #js {:onClick #(get-movie-by-title "The Sting")}
+                            "Search Rotton Tomatoes!!!!")))))
+ app-state
+ {:target (. js/document (getElementById "query"))})
