@@ -62,7 +62,7 @@
   (let [clicks (events->chan (by-id "ex1-button") EventType.CLICK)
         show!  (partial show! "ex1-messages")]
     (go
-      (show! "Waiting for a click ...")
+      (show! "Waiting for a click ")
       (<! clicks)
       (show! "Got a click!"))))
 
@@ -119,6 +119,8 @@
       (show! "Putting a value on channel c0, cannot proceed until someone takes...which no one can do.")
       (>! c0 (js/Date.))
       (show! "We'll never get this far!")
+      (<! c0))
+    (go
       (<! c0))))
 
 (ex4)
