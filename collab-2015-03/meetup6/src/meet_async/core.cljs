@@ -62,9 +62,11 @@
   (let [clicks (events->chan (by-id "ex1-button") EventType.CLICK)
         show!  (partial show! "ex1-messages")]
     (go
-      (show! "Waiting for a click ...")
-      (<! clicks)
-      (show! "Got a click!"))))
+     (show! "Waiting for a click ...")
+     (loop [counter 0]
+       (<! clicks)
+       (show! (str "Got a click! " counter))
+       (recur (inc counter))))))
 
 (ex1)
 
@@ -157,17 +159,20 @@
     ;; 2. After you've done everything else, come back and add an SVG
     ;;    element that follows the mouse around the page.
     (go
-      (show! "Click button to start tracking the mouse!")
-      (<! clicks)
-      (set! (.-innerHTML button) "Stop!")
-      (loop []
-        (let [[v c] (alts! [mouse clicks])]
-          (cond
+     (loop []
+       (show! "Click button to start tracking the mouse!")
+       (<! clicks)
+       (set! (.-innerHTML button) "Stop!")
+       (loop []
+         (let [[v c] (alts! [mouse clicks])]
+           (cond
             (= c clicks) (show! "Done!")
             :else
             (do
               (show! (pr-str v))
-              (recur))))))))
+              (recur)))))
+       (set! (.-innerHTML button) "GO!")
+       (recur)))))
 
 (ex6)
 
