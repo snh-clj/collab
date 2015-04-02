@@ -83,9 +83,9 @@
       (show! "Got a click!")
       (show! "Waiting for another click ...")
       (<! clicks)
-      (show! "Done!"))))
-
-(ex2)
+      (show! "Done!")
+      42)))
+(go (println "go block result" (<! (ex2))))
 
 ;; =============================================================================
 ;; Example 3
@@ -116,7 +116,7 @@
     (go
       (show! "Waiting for click.")
       (<! clicks)
-      (show! "Putting a value on channel c0, cannot proceed until someone takes...which no one can do.")
+      (show! "Putting a value on channel c0, cannot proceed until someone takes...which no one do.")
       (>! c0 (js/Date.))
       (show! "We'll never get this far!")
       (<! c0))))
@@ -135,7 +135,7 @@
       (<! clicks)
       (show! "Putting a value on channel c0, cannot proceed until someone takes")
       (>! c0 (js/Date.))
-      (show! "Someone took the value from c0!"))
+      (show! "Someone tokOK the value from c0!"))
     (go
       (let [v (<! c0)]
         (show! (str "We (in this other go block) got a value from c0: " v))))))
@@ -149,7 +149,8 @@
   (let [button (by-id "ex6-button")
         clicks (events->chan button EventType.CLICK)
         mouse  (events->chan js/window EventType.MOUSEMOVE
-                 (chan 1 (map mouse-loc->vec)))
+                             (chan 1 (map mouse-loc->vec)))
+        circle    (by-id "ex6-circle")
         show!  (partial show! "ex6-messages")]
     ;; Suggestions:
     ;; 1. After you click "Stop!", clean up and get ready to Start!
@@ -167,6 +168,8 @@
             :else
             (do
               (show! (pr-str v))
+              (set! (.-cx  circle) (first v))
+              (set! (.-cy  circle) (second v))
               (recur))))))))
 
 (ex6)
