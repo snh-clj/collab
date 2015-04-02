@@ -15,12 +15,14 @@
       Scroll down to Example 1 to get started."}
   meet-async.core
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [cljs.core.async :as async :refer [>! <! put! chan alts! timeout]]
+  (:require [cljs.core.async :as async :refer [>! <! put! chan alts! timeout buffer]]
             [goog.events :as events]
             [goog.dom.classes :as classes])
   (:import [goog.events EventType]))
 
 (enable-console-print!)
+
+(def global-count-chan (chan (buffer 4) (filter #(= % EventType.CLICK))))
 
 ;; =============================================================================
 ;; Utilities
@@ -37,7 +39,7 @@
   ([el event-type] (events->chan el event-type (chan)))
   ([el event-type c]
    (events/listen el event-type
-     (fn [e] (put! c e)))
+                  (fn [e] (put! global-count-chan event-type) (put! c e)))
    c))
 
 (defn mouse-loc->vec
@@ -57,6 +59,15 @@
 
 ;; =============================================================================
 ;; Example 1
+
+(defn handle-counter [count-chan]
+  (go
+   (loop [counter 1]
+     (<! count-chan)
+     (set! (.-innerHTML (by-id "counter")) (str "Count is: " counter))
+     (recur (inc counter)))))
+
+(handle-counter global-count-chan)
 
 (defn ex1 []
   (let [clicks (events->chan (by-id "ex1-button") EventType.CLICK)
