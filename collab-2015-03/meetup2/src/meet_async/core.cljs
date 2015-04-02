@@ -14,7 +14,7 @@
 
       Scroll down to Example 1 to get started."}
   meet-async.core
-  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [cljs.core.async :as async :refer [>! <! put! chan alts! timeout]]
             [goog.events :as events]
             [goog.dom.classes :as classes])
@@ -34,7 +34,7 @@
   "Given a target DOM element and event type return a channel of
   observed events. Can supply the channel to receive events as third
   optional argument."
-  ([el event-type] (events->chan el event-type (chan)))
+  ([el event-type] (events->chan el event-type (chan 10)))
   ([el event-type c]
    (events/listen el event-type
      (fn [e] (put! c e)))
@@ -61,10 +61,11 @@
 (defn ex1 []
   (let [clicks (events->chan (by-id "ex1-button") EventType.CLICK)
         show!  (partial show! "ex1-messages")]
-    (go
-      (show! "Waiting for a click ...")
+    (go-loop []
+      (show! "Waiting for a click from you...")
       (<! clicks)
-      (show! "Got a click!"))))
+      (show! "Got a click!")
+      (recur))))
 
 (ex1)
 
@@ -131,20 +132,20 @@
         c0     (chan)
         show!  (partial show! "ex5-messages")]
     (go
+     (let [v (<! c0)]
+       (show! (str "We (in this other go block) got a value from c0: " v))))
+    (go
       (show! "Waiting for click.")
       (<! clicks)
       (show! "Putting a value on channel c0, cannot proceed until someone takes")
       (>! c0 (js/Date.))
       (show! "Someone took the value from c0!"))
-    (go
-      (let [v (<! c0)]
-        (show! (str "We (in this other go block) got a value from c0: " v))))))
+    ))
 
 (ex5)
 
 ;; =============================================================================
 ;; Example 6
-
 (defn ex6 []
   (let [button (by-id "ex6-button")
         clicks (events->chan button EventType.CLICK)
@@ -156,8 +157,9 @@
     ;;    again.
     ;; 2. After you've done everything else, come back and add an SVG
     ;;    element that follows the mouse around the page.
-    (go
+    (go-loop []
       (show! "Click button to start tracking the mouse!")
+      (set! (.-innerHTML button) "Go!")
       (<! clicks)
       (set! (.-innerHTML button) "Stop!")
       (loop []
@@ -167,7 +169,8 @@
             :else
             (do
               (show! (pr-str v))
-              (recur))))))))
+              (recur)))))
+      (recur))))
 
 (ex6)
 
