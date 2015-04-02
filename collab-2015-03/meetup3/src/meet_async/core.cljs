@@ -61,10 +61,9 @@
 (defn ex1 []
   (let [clicks (events->chan (by-id "ex1-button") EventType.CLICK)
         show!  (partial show! "ex1-messages")]
-    (go
-      (show! "Waiting for a click ...")
-      (<! clicks)
-      (show! "Got a click!"))))
+    go
+    (show! "Waiting for a click ...")
+    ))
 
 (ex1)
 
@@ -78,12 +77,16 @@
     ;; and add a resetting/continuation feature, so that you can
     ;; repeat the example in the browser without reloading.
     (go
-      (show! "Waiting for a click ...")
-      (<! clicks)
-      (show! "Got a click!")
-      (show! "Waiting for another click ...")
-      (<! clicks)
-      (show! "Done!"))))
+     (loop
+         []
+         (show! "Waiting for a click ...")
+       (<! clicks)
+       (show! "Got a click!")
+       (show! "Waiting for another click ...")
+       (<! clicks)
+       (show! "Done!")
+       (<! (timeout 5000))
+       (recur)))))
 
 (ex2)
 
@@ -111,7 +114,7 @@
 
 (defn ex4 []
   (let [clicks (events->chan (by-id "ex4-button-a") EventType.CLICK)
-        c0     (chan)
+        c0     (chan 1)
         show!  (partial show! "ex4-messages")]
     (go
       (show! "Waiting for click.")
@@ -157,17 +160,21 @@
     ;; 2. After you've done everything else, come back and add an SVG
     ;;    element that follows the mouse around the page.
     (go
-      (show! "Click button to start tracking the mouse!")
-      (<! clicks)
-      (set! (.-innerHTML button) "Stop!")
-      (loop []
-        (let [[v c] (alts! [mouse clicks])]
-          (cond
+     (loop
+         []
+       (set! (.-innerHTML button) "GO!")
+       (show! "Click button to start tracking the mouse!")
+       (<! clicks)
+       (set! (.-innerHTML button) "Stop!")
+       (loop []
+         (let [[v c] (alts! [mouse clicks])]
+           (cond
             (= c clicks) (show! "Done!")
             :else
             (do
               (show! (pr-str v))
-              (recur))))))))
+              (recur)))))
+       (recur)))))
 
 (ex6)
 
