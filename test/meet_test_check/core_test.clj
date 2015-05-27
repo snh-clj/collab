@@ -31,7 +31,7 @@
   1000
   ;; 'bad-fn-4 is fine, but this test is based on the incorrect
   ;; 'bad-fn-4 docstring
-  (prop/for-all [s gen-string]
+  (prop/for-all [s (gen/not-empty gen-string)]
                 (< (count (bad-fn-4 s)) (count s))))
 
 (defspec shrink-noah?
