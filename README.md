@@ -1,6 +1,10 @@
 # meet-test-check
 
-A Clojure library designed to help you interact with [test.check](https://github.com/clojure/test.check).
+A Clojure library designed to help you interact with [test.check](https://github.com/clojure/test.check). We'll run some tests, fix some fns and some tests, and explore writing generators.
+
+Helpful Docs:
+* [Generators writing guide](https://github.com/clojure/test.check/blob/master/doc/intro.md)
+* [API](http://clojure.github.io/test.check/clojure.test.check.generators.html)
 
 ## Usage
 
