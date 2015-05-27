@@ -43,6 +43,8 @@
                 (noah? things)))
 
 (def gen-rgb
+  ;; gen/such-that would be another possibility, here.
+  ;; What are the trade-offs of 'gen/such-that vs. 'gen/fmap ?
   (gen/fmap #(mod % 256) gen/pos-int))
 
 (def gen-palette
