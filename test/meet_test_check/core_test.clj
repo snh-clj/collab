@@ -66,4 +66,7 @@
   (gen/sample (gen/tuple gen/int gen/char-alphanumeric gen/keyword))
   (gen/sample gen-palette)
 
+  ;; Ideas:
+  ;; 1. Generate IPv4 addresses. IPv6 addresses.
+  ;; 2. Generate directed graphs (of any kind). Possible example: [5 4 3 0 2 1] Traversal: 5 1 4 2 3 0
   )
