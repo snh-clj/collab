@@ -42,6 +42,17 @@
   (prop/for-all [things (gen/not-empty (gen/vector gen/int))]
                 (noah? things)))
 
+(def gen-rgb
+  (gen/fmap #(mod % 256) gen/pos-int))
+
+(def gen-palette
+  (gen/bind (gen/not-empty (gen/vector (gen/tuple gen-rgb gen-rgb gen-rgb)))
+            (fn pick-fg-bg [colors]
+              (gen/hash-map
+               :palette (gen/return colors)
+               :fg (gen/elements colors)
+               :bg (gen/elements colors)))))
+
 (comment
   ;; REPL-loading line
   (require 'meet-test-check.core-test :reload-all) (in-ns 'meet-test-check.core-test) (use 'clojure.repl)
@@ -50,5 +61,7 @@
   (gen/sample gen/int)
   (gen/sample gen/int 3)
   (gen/sample (gen/vector gen/keyword 2))
+  (gen/sample (gen/tuple gen/int gen/char-alphanumeric gen/keyword))
+  (gen/sample gen-palette)
 
   )
