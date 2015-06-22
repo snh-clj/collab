@@ -14,4 +14,14 @@ public class MeetJava {
 
     }
 
+    public ArrayList<Integer> xformIntArray (ArrayList<Integer> incoming) {
+        ArrayList<Integer> outgoing = new ArrayList<Integer>();
+
+        for (Integer in : incoming) {
+            outgoing.add(in * (in % 11));
+        }
+
+        return outgoing;
+    }
+
 }
