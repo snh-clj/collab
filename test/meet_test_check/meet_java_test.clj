@@ -8,7 +8,7 @@
 
 (defspec all-ints-positive
   10
-  (prop/for-all [v (gen/vector gen/int)]
+  (prop/for-all [v (gen/vector (gen/fmap #(+ 1 %) gen/pos-int))]
                 (let [xformed-array (MeetJava/xformIntArray (int-array v))]
                   (every? pos? xformed-array))))
 #_(defspec all-ints-positive
