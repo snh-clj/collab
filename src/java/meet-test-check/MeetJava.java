@@ -19,7 +19,7 @@ public class MeetJava {
         System.out.println("Transformed array contents: " + Arrays.toString(result));
     }
 
-    public int[] xformIntArray (int[] incoming) {
+    public static int[] xformIntArray (int[] incoming) {
 
         int[] outgoing = new int[incoming.length];
 
