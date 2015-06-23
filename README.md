@@ -13,6 +13,15 @@ Helpful Docs:
 1. Make changes to ```meet-test-check.core``` and ```meet-test-check.core-test``` until the tests all pass. :)
 1. Check out the suggestions in the comment at the end of the ```meet-test-check.core-test``` ns to build your own cool generators.
 
+### Java Interop
+MeetJava.java and MeetJavaTest.java (in src/java and test/java, respectively) demonstrate
+how JUnit and test.check can be integrated to utilize test.check generators in JUnit tests
+and how to test Java classes with test.check tests.
+
+To run the MeetJava class: `java -cp target/meet-test-check-0.1.0-SNAPSHOT-standalone.jar meet_test_check.MeetJava`
+
+To run the MeetJavaTest class: `run-junit-tests.sh` 
+
 ## License
 
 Copyright © 2015 FIXME
