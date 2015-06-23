@@ -5,7 +5,8 @@
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop]
-            [clojure.test.check.clojure-test :refer [defspec]]))
+            [clojure.test.check.clojure-test :refer [defspec]]
+            [com.gfredericks.test.chuck :as chuck]))
 
 (def gen-string
   ;; See gen/string-alphanumeric ... and use it instead. ;)
@@ -34,7 +35,7 @@
   (prop/for-all [s (gen/not-empty gen-string)]
                 (< (count (bad-fn-4 s)) (count s))))
 
-(defspec shrink-noah?
+#_(defspec shrink-noah?
   1000
   ;; The point of this "test" is merely to show how test.check shrinks
   ;; the generated value to a local minimum, to help you find a
@@ -54,6 +55,14 @@
                :palette (gen/return colors)
                :fg (gen/elements colors)
                :bg (gen/elements colors)))))
+
+(def tiger-bunny-shipper-gen
+  (->>
+   [:tiger :bunny]
+   (gen/elements)
+   (gen/fmap vector)
+   (gen/vector)
+   (gen/not-empty)))
 
 (comment
   ;; REPL-loading line
