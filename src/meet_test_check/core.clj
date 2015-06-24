@@ -119,7 +119,7 @@
           (assert (= receipt-count (count shipment)))))
       (close! deliveries)))
 
-(defn zoo [pens shipments]
+(defn zoo
   "A zoo has various pens, appropriate for different types of animals.
   It receives shipments of animals from the shipper. A handler
   unpacks the animals from the shipments and put them into pens.
@@ -130,6 +130,7 @@
   A shipment looks like this:
   [[:tiger] [:tiger]] or [[:bunny] [:bunny]],
   with each animal in its own crate."
+  [pens shipments]
   (let [deliveries (chan)
         receipts (chan)]
     (animal-handler deliveries receipts pens)

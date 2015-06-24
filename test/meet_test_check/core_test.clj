@@ -7,16 +7,18 @@
             [clojure.test.check.properties :as prop]
             [clojure.test.check.clojure-test :refer [defspec]]
             [com.gfredericks.test.chuck :as chuck]
-            [com.gfredericks.test.chuck.properties :as prop']))
+            [com.gfredericks.test.chuck.properties :as prop'])
+  (:import [clojure.test.check.generators Generator]))
+
+(def replace-me-gen
+  (Generator. (fn [& _] (throw (Exception. "Replace this generator.")))))
 
 (def test-integer-gen
-  ;; REMOVE
-  gen/int)
+  "A generator returning integers."
+  replace-me-gen)
 
 (defspec test-bad-fn-1
   100000
-  ;; 'bad-fn-1 has a bug and should be fixed
-  ;; REMOVE
   (prop/for-all [i test-integer-gen]
                 (try
                   (let [x (bad-fn-1 i)]
@@ -24,47 +26,33 @@
                   (catch Throwable t
                     false))))
 
-(def gen-string
-  ;; See gen/string-alphanumeric ... and use it instead. ;)
-  ;; But this shows how a still-simple generator can be constructed
-  ;; out of simple parts.
-  (gen/fmap str/join (gen/vector gen/char-alphanumeric)))
-
 (defspec test-bad-fn-2
-  10000
-  ;; This fn and test are silly, but demonstrate test.check shrinking.
-  ;; #_ it out and move on after you understand it.
-  (prop/for-all [s gen-string]
-                (= (count s) (count (bad-fn-2 s)))))
-
-(defspec test-bad-fn-3
   1000
-  (prop/for-all [s gen-string]
+  (prop/for-all [s gen/string-alphanumeric]
                 ;; Write property checking for string to not contain "Q".
-                ;; REMOVE
-                (not (contains? (-> s bad-fn-3 set) \Q ))))
+                false ; <- replace me
+                ))
 
 (def non-4-int-gen
   "A generator returning all integers not including 4."
-  ;; REMOVE
-  (gen/such-that #(not= 4 %) gen/int))
+  replace-me-gen)
 
-(defspec test-bad-fn-4
+(defspec test-bad-fn-3
   1000
-;; Assure that bad-fn-4 always returns a clojure.lang.Ratio for all integers, not including 4.
+;; Assure that bad-fn-3 always returns a clojure.lang.Ratio for all integers, not including 4.
   (prop/for-all [n non-4-int-gen]
                 ;; If this triggers, your generator is wrong.
                 (is (not= n 4))
-                ;; If this triggers, you've found the problem with bad-fn-4
+                ;; If this triggers, you've found the problem with bad-fn-3
                 (is (= clojure.lang.Ratio
-                       (type (bad-fn-4 n))))))
+                       (type (bad-fn-3 n))))))
+
 
 ;; Spongebob Granddad
 
 (def sponge-child-parent-gen
   ;; A generator returning pairs of natural numbers.
-  ;; REMOVE
-  (gen/tuple gen/nat gen/nat))
+  replace-me-gen)
 
 (defn has-loop?
   "Searches for loops in the ancestry starting with start-child.
@@ -96,24 +84,19 @@
 
 (defspec hickeys-ark-test
   100
-  ;; REMOVE
   (prop/for-all [pairs (gen/vector animal-pairs-gen)]
-                (let [full-ark
-                      (reduce #(apply board-pair-of-animals %1 %2) [] pairs)]
-                  (every? #{2} (vals (frequencies full-ark))))))
+                ;; Write a property checking that there are only 2 of each kind on the ark.
+                false)) ; <- replace me
 
 (defn animal-shipments-gen-fn
+  "A function taking a series of animal arguments returning a generator of:
+   [[[animal1]],[[animal2][animal2]],[[animal1][animal1][animal2]]]
+
+  An animal is in a vector cage.
+  A shipment is a vector 1-3 animals in cages.
+  A shipments list is a vector of shipments. "
   [& animals]
-  ;; REMOVE
-  (->
-   animals
-   ;; animals ship in vector cages
-   (->> (map vector))
-   (gen/elements)
-   ;; Generate shipments with 1-3 animals
-   (gen/vector 1 3)
-   ;; Generate multiple shipments
-   (gen/vector)))
+  replace-me-gen)
 
 (defspec zoo-test
   100
@@ -129,7 +112,10 @@
 
 (comment
   ;; REPL-loading line
-  (require 'meet-test-check.core-test :reload-all) (in-ns 'meet-test-check.core-test) (use 'clojure.repl)
+  (do
+    (require 'meet-test-check.core-test :reload-all)
+    (in-ns 'meet-test-check.core-test)
+    (use 'clojure.repl))
 
   ;; test some generators in the REPL:
   (gen/sample gen/int)
@@ -137,15 +123,4 @@
   (gen/sample (gen/vector gen/keyword 2))
   (gen/sample (gen/tuple gen/int gen/char-alphanumeric gen/keyword))
   (gen/sample gen-palette)
-
-  (def tiger-pen (atom []))
-  (def bunny-pen (atom []))
-  (def s1 [[[:tiger]]
-           [[:tiger] [:tiger]]
-           [[:bunny] [:bunny]]
-           [[:tiger] [:bunny]]])
-
-  ;; Ideas:
-  ;; 1. Generate IPv4 addresses. IPv6 addresses.
-  ;; 2. Generate directed graphs (of any kind). Possible example: [5 4 3 0 2 1] Traversal: 5 1 4 2 3 0
   )
