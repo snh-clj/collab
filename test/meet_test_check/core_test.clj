@@ -50,6 +50,33 @@
                :fg (gen/elements colors)
                :bg (gen/elements colors)))))
 
+;; Spongebob Granddad
+
+(def sponge-child-parent-gen
+  ;; A generator returning pairs of natural numbers.
+  ;; REMOVE
+  (gen/tuple gen/nat gen/nat))
+
+(defn has-loop?
+  "Searches for loops in the ancestry starting with start-child.
+  Returns true if a loop is found, false otherwise."
+  [ancestry start-child]
+  (loop [this-child start-child visited? #{start-child}]
+    (if-let [next-child (get ancestry this-child)]
+      (if (visited? next-child)
+        ;; We found a loop
+        true
+        (recur next-child (conj visited? this-child)))
+      ;; No loop found
+      false)))
+
+(defspec spongebob-granddad-test
+  100
+  (prop/for-all [ancestors (gen/vector sponge-child-parent-gen)]
+                (let [ancestry (reduce add-sponge-ancestry {} ancestors)]
+                  (every? (partial (complement has-loop?) ancestry)
+                          (keys ancestry)))))
+
 
 (def animal-pairs-gen
   "Generates vector pairs of animals."

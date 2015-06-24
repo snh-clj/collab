@@ -29,16 +29,26 @@
   [s]
   (subs s (.indexOf s "z") (.indexOf s "a")))
 
-;; Spongebob-granddad
-(defn add-sponge-ancestry
-  "All sponges have just one parent.
 
-  Adds a child-parent sponge relationship to the ancestry map.
-  This will throw an exception if the ancestry already contains the child."
-  [ancestry child parent]
+;; Spongebob Granddad
+;;
+;; All sponges have just one parent.
+;;
+;; Spongebob wants to trace his family history. He trauls through the
+;; oceanic archives to find parent-child relationships. Not all the
+;; information in the archives is accurate but it's his best hope of
+;; finding his family tree.
+
+(defn add-sponge-ancestry
+  "Adds a child-parent sponge relationship to the ancestry map.
+  An ancestry is a map of child to parent relationships.
+  All sponges are assigned numbers at birth, so 'child and 'parent are numbers.
+  If a new parent is found for an existing child, the original child-parent relationship is kept."
+  [ancestry [child parent]]
   (if (contains? ancestry child)
-    (throw (Exception. (str "Ancestry already contains: " child)))
+    ancestry
     (assoc ancestry child parent)))
+
 
 ;; Rich Hickey's Ark
 
