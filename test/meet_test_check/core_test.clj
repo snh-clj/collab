@@ -9,6 +9,21 @@
             [com.gfredericks.test.chuck :as chuck]
             [com.gfredericks.test.chuck.properties :as prop']))
 
+(def test-integer-gen
+  ;; REMOVE
+  gen/int)
+
+(defspec test-bad-fn-1
+  100000
+  ;; 'bad-fn-1 has a bug and should be fixed
+  ;; REMOVE
+  (prop/for-all [i test-integer-gen]
+                (try
+                  (let [x (bad-fn-1 i)]
+                    (or (integer? x) (ratio? x)))
+                  (catch Throwable t
+                    false))))
+
 (def gen-string
   ;; See gen/string-alphanumeric ... and use it instead. ;)
   ;; But this shows how a still-simple generator can be constructed
@@ -23,32 +38,26 @@
                 (= (count s) (count (bad-fn-2 s)))))
 
 (defspec test-bad-fn-3
-  100000
-  ;; 'bad-fn-3 has a bug and should be fixed
-  (prop/for-all [i gen/int]
-                (let [x (bad-fn-3 i)]
-                  (or (integer? x) (ratio? x)))))
+  1000
+  (prop/for-all [s gen-string]
+                ;; Write property checking for string to not contain "Q".
+                ;; REMOVE
+                (not (contains? (-> s bad-fn-3 set) \Q ))))
+
+(def non-4-int-gen
+  "A generator returning all integers not including 4."
+  ;; REMOVE
+  (gen/such-that #(not= 4 %) gen/int))
 
 (defspec test-bad-fn-4
   1000
-  ;; 'bad-fn-4 is fine, but this test is based on the incorrect
-  ;; 'bad-fn-4 docstring
-  (prop/for-all [s (gen/not-empty gen-string)]
-                (< (count (bad-fn-4 s)) (count s))))
-
-
-(def gen-rgb
-  ;; gen/such-that would be another possibility, here.
-  ;; What are the trade-offs of 'gen/such-that vs. 'gen/fmap ?
-  (gen/fmap #(mod % 256) gen/pos-int))
-
-(def gen-palette
-  (gen/bind (gen/not-empty (gen/vector (gen/tuple gen-rgb gen-rgb gen-rgb)))
-            (fn pick-fg-bg [colors]
-              (gen/hash-map
-               :palette (gen/return colors)
-               :fg (gen/elements colors)
-               :bg (gen/elements colors)))))
+;; Assure that bad-fn-4 always returns a clojure.lang.Ratio for all integers, not including 4.
+  (prop/for-all [n non-4-int-gen]
+                ;; If this triggers, your generator is wrong.
+                (is (not= n 4))
+                ;; If this triggers, you've found the problem with bad-fn-4
+                (is (= clojure.lang.Ratio
+                       (type (bad-fn-4 n))))))
 
 ;; Spongebob Granddad
 
