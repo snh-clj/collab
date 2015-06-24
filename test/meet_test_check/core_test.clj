@@ -36,13 +36,6 @@
   (prop/for-all [s (gen/not-empty gen-string)]
                 (< (count (bad-fn-4 s)) (count s))))
 
-#_(defspec shrink-noah?
-  1000
-  ;; The point of this "test" is merely to show how test.check shrinks
-  ;; the generated value to a local minimum, to help you find a
-  ;; helpful failing test case that is as small as possible.
-  (prop/for-all [things (gen/not-empty (gen/vector gen/int))]
-                (noah? things)))
 
 (def gen-rgb
   ;; gen/such-that would be another possibility, here.
@@ -57,8 +50,24 @@
                :fg (gen/elements colors)
                :bg (gen/elements colors)))))
 
+
+(def animal-pairs-gen
+  "Generates vector pairs of animals."
+  (->
+   (gen/elements hickeys-animal-types)
+   (gen/bind #(gen/return [% %]))))
+
+(defspec hickeys-ark-test
+  100
+  ;; REMOVE
+  (prop/for-all [pairs (gen/vector animal-pairs-gen)]
+                (let [full-ark
+                      (reduce #(apply board-pair-of-animals %1 %2) [] pairs)]
+                  (every? #{2} (vals (frequencies full-ark))))))
+
 (defn animal-shipments-gen-fn
   [& animals]
+  ;; REMOVE
   (->
    animals
    ;; animals ship in vector cages
