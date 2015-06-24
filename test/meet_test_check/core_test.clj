@@ -6,7 +6,8 @@
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop]
             [clojure.test.check.clojure-test :refer [defspec]]
-            [com.gfredericks.test.chuck :as chuck]))
+            [com.gfredericks.test.chuck :as chuck]
+            [com.gfredericks.test.chuck.properties :as prop']))
 
 (def gen-string
   ;; See gen/string-alphanumeric ... and use it instead. ;)
@@ -56,13 +57,29 @@
                :fg (gen/elements colors)
                :bg (gen/elements colors)))))
 
-(def tiger-bunny-shipper-gen
-  (->>
-   [:tiger :bunny]
+(defn animal-shipments-gen-fn
+  [& animals]
+  (->
+   animals
+   ;; animals ship in vector cages
+   (->> (map vector))
    (gen/elements)
-   (gen/fmap vector)
-   (gen/vector)
-   (gen/not-empty)))
+   ;; Generate shipments with 1-3 animals
+   (gen/vector 1 3)
+   ;; Generate multiple shipments
+   (gen/vector)))
+
+(defspec zoo-test
+  100
+  (prop/for-all [shipments (animal-shipments-gen-fn :tiger :bunny)]
+                ;; for every type of animal
+                (every? (fn [[animal-type animal-pen]]
+                          ;; Every animal in that pen should be the
+                          ;; right type of animal
+                          (every? #{animal-type} @animal-pen))
+                        (let [pens {:tiger (atom [])
+                                    :bunny (atom [])}]
+                          (zoo pens shipments)))))
 
 (comment
   ;; REPL-loading line
@@ -74,6 +91,13 @@
   (gen/sample (gen/vector gen/keyword 2))
   (gen/sample (gen/tuple gen/int gen/char-alphanumeric gen/keyword))
   (gen/sample gen-palette)
+
+  (def tiger-pen (atom []))
+  (def bunny-pen (atom []))
+  (def s1 [[[:tiger]]
+           [[:tiger] [:tiger]]
+           [[:bunny] [:bunny]]
+           [[:tiger] [:bunny]]])
 
   ;; Ideas:
   ;; 1. Generate IPv4 addresses. IPv6 addresses.

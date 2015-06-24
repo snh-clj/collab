@@ -1,7 +1,7 @@
 (ns meet-test-check.core
   (:require [clojure.string :as s]
             [clojure.core.async :as async
-             :refer [>! <! >!! <!! go chan buffer
+             :refer [>! <! >!! <!! go go-loop chan buffer
                      close! thread alts! alts!! timeout]]))
 
 (defn bad-fn-2
@@ -87,30 +87,46 @@
   A shipment looks like this [[:tiger] [:tiger]] or [[:bunny] [:bunny]],
   with each animal in its own crate."
   [dock receipts pens]
-  (go
-    (loop []
-      (if-let [shipment (<! dock)]
-        (let [animals (flatten shipment)
-              animal-type (first animals)
-              pen (get pens animal-type)]
-          (prn "unpacking shipment" shipment)
-          (swap! pen into animals)
-          (>! receipts (count animals))
-          (prn "sent receipt for" (count animals))
-          (recur))
-        (close! receipts)))))
+  (go-loop []
+    (if-let [crates (<! dock)]
+      (let [animals (flatten crates)
+            animal-count (count animals)
+            animal-type (first animals)
+            pen (get pens animal-type)]
+        (swap! pen into animals)
+        (>! receipts animal-count)
+        (recur))
+      (close! receipts))))
 
-(defn zoo [tiger-pen bunny-pen shipments]
-  (let [deliveries (chan)
-        receipts (chan)
-        pens {:tigers tiger-pen
-              :bunnies bunny-pen}]
-    (animal-handler deliveries receipts pens)
-    (doseq [shipment shipments]
-      (go
-        (prn "shipping" shipment)
-        (>! deliveries shipment)
+(defn animal-shipper
+  "A services a series of shipments, placing the deliveries
+  on the delivery channel and waiting to receive a receipt from the
+  receipts channel confirming delivery before sending the next
+  shipment.
+
+  The shipments plan looks like this:
+  [[[:tiger]],[[:bunny][:bunny]],[[:tiger]]]"
+  [deliveries receipts shipments]
+  (go
+      (doseq [shipment shipments]
+        (>!! deliveries shipment)
         (let [receipt-count (<! receipts)]
-          (prn "got receipt" receipt-count)
-          (assert (= receipt-count (count shipments)))))
-      (close! deliveries))))
+          (assert (= receipt-count (count shipment)))))
+      (close! deliveries)))
+
+(defn zoo [pens shipments]
+  "A zoo has various pens, appropriate for different types of animals.
+  It receives shipments of animals from the shipper. A handler
+  unpacks the animals from the shipments and put them into pens.
+
+  The animal pens are a map of animal type to atom in this form:
+  {:tiger (atom []) :bunny (atom [])}.
+
+  A shipment looks like this:
+  [[:tiger] [:tiger]] or [[:bunny] [:bunny]],
+  with each animal in its own crate."
+  (let [deliveries (chan)
+        receipts (chan)]
+    (animal-handler deliveries receipts pens)
+    (animal-shipper deliveries receipts shipments)
+    pens))
