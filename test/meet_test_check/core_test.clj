@@ -119,8 +119,50 @@
 
   ;; test some generators in the REPL:
   (gen/sample gen/int)
+  ;; gen/sample returns 10 elements by default but you can change that
   (gen/sample gen/int 3)
+
+  ;; Some generators can take other generators
   (gen/sample (gen/vector gen/keyword 2))
-  (gen/sample (gen/tuple gen/int gen/char-alphanumeric gen/keyword))
-  (gen/sample gen-palette)
-  )
+
+  ;; You might be tempted to do:
+  (gen/sample (gen/such-that even? gen/int))
+  ;; ... but gen/fmap is better:
+  (gen/sample (gen/fmap #(* 2 %) gen/int))
+  ;; ... you can also use gen/bind:
+  (gen/sample (gen/bind gen/int
+                        (fn [n]
+                          (gen/return (* 2 n)))))
+  ;; ... which allows us to do more complicated things:
+  (gen/sample (gen/bind gen/int
+                        (fn [n]
+                          (gen/vector (gen/return (* 2 n)) n))))
+
+  ;; sometimes you just want the same value:
+  (gen/sample (gen/return 3))
+
+  ;; or you want one of several possible values
+  (gen/sample (gen/elements :yakko :wakko :dot))
+
+  ;; sometimes you want to have different probabilities for various sub-generators:
+  (gen/sample (gen/frequency [[44 gen/nat]
+                              [55 (gen/map gen/keyword gen/string)]
+                              [1 (gen/return :boo)]]))
+
+  ;; gen/vector is handy for elements in random lengths and positions
+  ;; but sometimes you want a particular structure:
+  (gen/sample (gen/tuple gen/nat gen/string-alphanumeric gen/bytes))
+
+  (defspec numbers-are-numbers-test
+    1000
+    (prop/for-all [n gen/int]
+                  (number? n))))
+
+  (defspec unreasonable-expectations-test
+    100
+    (prop/for-all [n gen/int]
+                  (< n 50)))
+
+  (clojure.test/test-var #'numbers-are-numbers-test)
+  (clojure.test/test-var #'unreasonable-expectations-test)
+)
