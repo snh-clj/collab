@@ -77,6 +77,7 @@
                   (every? (partial (complement has-loop?) ancestry)
                           (keys ancestry)))))
 
+;; Rich Hickey's Ark
 
 (def animal-pairs-gen
   "Generates vector pairs of animals."
