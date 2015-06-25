@@ -15,7 +15,7 @@
 
 (def test-integer-gen
   "A generator returning integers."
-  replace-me-gen)
+  gen/int)
 
 (defspec test-bad-fn-1
   100000
@@ -30,12 +30,13 @@
   1000
   (prop/for-all [s gen/string-alphanumeric]
                 ;; Write property checking for string to not contain "Q".
-                false ; <- replace me
-                ))
+                (let [s (bad-fn-2 s)]
+                  (not
+                   (.contains s "Q")))))
 
 (def non-4-int-gen
   "A generator returning all integers not including 4."
-  replace-me-gen)
+  (gen/such-that #(not= 4 %) gen/int))
 
 (defspec test-bad-fn-3
   1000
@@ -52,7 +53,7 @@
 
 (def sponge-child-parent-gen
   ;; A generator returning pairs of natural numbers.
-  replace-me-gen)
+  (gen/tuple gen/nat gen/nat))
 
 (defn has-loop?
   "Searches for loops in the ancestry starting with start-child.
@@ -86,7 +87,11 @@
   100
   (prop/for-all [pairs (gen/vector animal-pairs-gen)]
                 ;; Write a property checking that there are only 2 of each kind on the ark.
-                false)) ; <- replace me
+                (every? #(= 2 %)
+                        (->> pairs
+                             (reduce #(apply board-pair-of-animals %1 %2) [])
+                             frequencies
+                             vals))))
 
 (defn animal-shipments-gen-fn
   "A function taking a series of animal arguments returning a generator of:
@@ -96,7 +101,11 @@
   A shipment is a vector 1-3 animals in cages.
   A shipments list is a vector of shipments. "
   [& animals]
-  replace-me-gen)
+  (-> animals
+      (->> (map vector))
+      (gen/elements)
+      (gen/vector 1 3)
+      (gen/vector)))
 
 (defspec zoo-test
   100
@@ -156,7 +165,7 @@
   (defspec numbers-are-numbers-test
     1000
     (prop/for-all [n gen/int]
-                  (number? n))))
+                  (number? n)))
 
   (defspec unreasonable-expectations-test
     100
