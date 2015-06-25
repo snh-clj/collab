@@ -11,7 +11,8 @@
   (:import [clojure.test.check.generators Generator]))
 
 (def replace-me-gen
-  (Generator. (fn [& _] (throw (Exception. "Replace this generator.")))))
+  gen/int)
+;  (Generator. (fn [& _] 1)))
 
 (def test-integer-gen
   "A generator returning integers."
@@ -26,11 +27,14 @@
                   (catch Throwable t
                     false))))
 
+  (clojure.test/test-var #'test-bad-fn-1)
+
 (defspec test-bad-fn-2
   1000
   (prop/for-all [s gen/string-alphanumeric]
+                (not (.indexOf s "Q"))
                 ;; Write property checking for string to not contain "Q".
-                false ; <- replace me
+                ;false ; <- replace me
                 ))
 
 (def non-4-int-gen
@@ -52,7 +56,7 @@
 
 (def sponge-child-parent-gen
   ;; A generator returning pairs of natural numbers.
-  replace-me-gen)
+  (gen/tuple gen/nat gen/nat))
 
 (defn has-loop?
   "Searches for loops in the ancestry starting with start-child.
@@ -74,6 +78,7 @@
                   (every? (partial (complement has-loop?) ancestry)
                           (keys ancestry)))))
 
+  (clojure.test/test-var #'spongebob-granddad-test)
 ;; Rich Hickey's Ark
 
 (def animal-pairs-gen
@@ -81,12 +86,16 @@
   (->
    (gen/elements hickeys-animal-types)
    (gen/bind #(gen/return [% %]))))
+(gen/sample animal-pairs-gen)
 
 (defspec hickeys-ark-test
   100
   (prop/for-all [pairs (gen/vector animal-pairs-gen)]
+                (= (count pairs) (count (distinct pairs)))
                 ;; Write a property checking that there are only 2 of each kind on the ark.
-                false)) ; <- replace me
+                )) ; <- replace me
+
+  (clojure.test/test-var #'hickeys-ark-test)
 
 (defn animal-shipments-gen-fn
   "A function taking a series of animal arguments returning a generator of:
@@ -156,13 +165,13 @@
   (defspec numbers-are-numbers-test
     1000
     (prop/for-all [n gen/int]
-                  (number? n))))
+                  (number? n)))
 
   (defspec unreasonable-expectations-test
     100
     (prop/for-all [n gen/int]
                   (< n 50)))
 
-  (clojure.test/test-var #'numbers-are-numbers-test)
   (clojure.test/test-var #'unreasonable-expectations-test)
+  (clojure.test/test-var #'numbers-are-numbers-test)
 )
