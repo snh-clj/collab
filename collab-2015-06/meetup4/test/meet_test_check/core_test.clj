@@ -15,7 +15,7 @@
 
 (def test-integer-gen
   "A generator returning integers."
-  replace-me-gen)
+  gen/int)
 
 (defspec test-bad-fn-1
   100000
@@ -30,12 +30,16 @@
   1000
   (prop/for-all [s gen/string-alphanumeric]
                 ;; Write property checking for string to not contain "Q".
-                false ; <- replace me
+                (try
+                  (let [x (bad-fn-2 s)]
+                    (nil? (re-find #"Q" x)))
+                  (catch Throwable t
+                    false)) ; <- replace me
                 ))
 
 (def non-4-int-gen
   "A generator returning all integers not including 4."
-  replace-me-gen)
+  (gen/such-that #(not= % 4) gen/int))
 
 (defspec test-bad-fn-3
   1000
@@ -52,7 +56,7 @@
 
 (def sponge-child-parent-gen
   ;; A generator returning pairs of natural numbers.
-  replace-me-gen)
+  (gen/tuple gen/nat gen/nat))
 
 (defn has-loop?
   "Searches for loops in the ancestry starting with start-child.
@@ -156,7 +160,7 @@
   (defspec numbers-are-numbers-test
     1000
     (prop/for-all [n gen/int]
-                  (number? n))))
+                  (number? n)))
 
   (defspec unreasonable-expectations-test
     100
