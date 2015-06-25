@@ -15,7 +15,7 @@
 
 (def test-integer-gen
   "A generator returning integers."
-  replace-me-gen)
+  gen/int)
 
 (defspec test-bad-fn-1
   100000
@@ -30,12 +30,11 @@
   1000
   (prop/for-all [s gen/string-alphanumeric]
                 ;; Write property checking for string to not contain "Q".
-                false ; <- replace me
-                ))
+                (not (re-find #"Q" (bad-fn-2 s)))))
 
 (def non-4-int-gen
   "A generator returning all integers not including 4."
-  replace-me-gen)
+  (gen/such-that #(not= 4 %) gen/int))
 
 (defspec test-bad-fn-3
   1000
@@ -52,13 +51,14 @@
 
 (def sponge-child-parent-gen
   ;; A generator returning pairs of natural numbers.
-  replace-me-gen)
+  (gen/such-that (fn [[a b]] (not= a b)) (gen/tuple gen/nat gen/nat)))
 
 (defn has-loop?
   "Searches for loops in the ancestry starting with start-child.
   Returns true if a loop is found, false otherwise."
   [ancestry start-child]
-  (loop [this-child start-child visited? #{start-child}]
+  (loop [this-child start-child
+         visited? #{start-child}]
     (if-let [next-child (get ancestry this-child)]
       (if (visited? next-child)
         ;; We found a loop
@@ -85,8 +85,12 @@
 (defspec hickeys-ark-test
   100
   (prop/for-all [pairs (gen/vector animal-pairs-gen)]
-                ;; Write a property checking that there are only 2 of each kind on the ark.
-                false)) ; <- replace me
+                (let [ark (reduce (fn [ark [a b]]
+                                    (board-pair-of-animals ark a b))
+                                  [] pairs)]
+                  (every? #(= 2 %) (vals (frequencies ark)))
+
+                ))) ; <- replace me
 
 (defn animal-shipments-gen-fn
   "A function taking a series of animal arguments returning a generator of:
@@ -156,7 +160,7 @@
   (defspec numbers-are-numbers-test
     1000
     (prop/for-all [n gen/int]
-                  (number? n))))
+                  (number? n)))
 
   (defspec unreasonable-expectations-test
     100
