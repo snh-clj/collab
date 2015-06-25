@@ -142,7 +142,7 @@
   (gen/sample (gen/return 3))
 
   ;; or you want one of several possible values
-  (gen/sample (gen/elements :yakko :wakko :dot))
+  (gen/sample (gen/elements [:yakko :wakko :dot]))
 
   ;; sometimes you want to have different probabilities for various sub-generators:
   (gen/sample (gen/frequency [[44 gen/nat]
@@ -156,7 +156,7 @@
   (defspec numbers-are-numbers-test
     1000
     (prop/for-all [n gen/int]
-                  (number? n))))
+                  (number? n)))
 
   (defspec unreasonable-expectations-test
     100
