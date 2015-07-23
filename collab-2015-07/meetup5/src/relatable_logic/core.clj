@@ -17,15 +17,15 @@
     (l/fresh [r s]
       (l/== s 3)
       (l/== r s)
-      (l/== r 4)
+      (l/== r 3)
       (l/== q r))))
 
 (defn problem-membero-2-3-4 []
   "BROKEN: Make this return a result of '(2 3 4)"
   (l/run 10 [q]
     (l/fresh [a]
-      (l/membero a [1 2 3])
-      (l/membero q [3 4 5])
+      (l/membero a [1 2 3 4])
+      (l/membero q [2 3 4 5])
       (l/== a q))))
 
 (defn problem-anja-orange []
@@ -35,7 +35,7 @@
       (l/== all [you me hiro anja])
       (l/== you :apple)
       (l/== [:banana :pear] [me hiro])
-      (l/appendo [you me] [hiro :tomato] all))))
+      (l/appendo [you me] [hiro :orange] all))))
 
 ;; Datomic
 (def p1-db [[1 :person/name "Bob"]
@@ -57,9 +57,9 @@
   (q '[:find ?mother
        :in $ ?child
        :where
-       [?e :person/name ?mother]
+       [?e :person/name ?child]
        [?e :person/mother ?f]
-       [?f :person/name ?child]]
+       [?f :person/name ?mother]]
      p1-db child))
 
 ;; PLDB - Prolog DB
@@ -89,9 +89,9 @@
   (pldb/with-db p2-db
     (l/run 10 [father]
       (l/fresh [my-id father-id]
-        (r-name my-id father)
+        (r-name my-id child)
         (r-father my-id father-id)
-        (r-name father-id child)))))
+        (r-name father-id father)))))
 
 (defn magic-squares
   "In recreational mathematics, a magic square is an arrangement of
@@ -115,10 +115,18 @@
      ;; each square can have the value 1-9
      (fd/in a b c d e f g h i (fd/interval 1 9))
      ;; numbers 1-9 should only appear once
-     (fd/distinct [a b])
-     (fd/eq
-      #_you_may_want_something_here
-      ))
+     (fd/distinct [a b c d e f g h i])
+     (l/fresh [sum]
+              (fd/in sum (fd/interval 0 89))
+              (fd/eq
+               (= sum (+ a b c))
+               (= sum (+ d e f))
+               (= sum (+ g h i))
+               (= sum (+ a d g))
+               (= sum (+ b e h))
+               (= sum (+ c f i))
+               (= sum (+ a e i))
+               (= sum (+ g e c)))))
    (map #(partition 3 %))))
 
 (defn triangulizer
@@ -144,5 +152,21 @@
        ;; results.
        (fd/<= a b)
        (fd/eq
-        #_Think_about_Pythagoras_and_type_code_here
-        )))))
+        (= (+ (* a a) (* b b)) (* h h)))))))
+
+(l/defne box [b]
+  ([[x y w h]]
+     (fd/in x y (fd/interval 0 1000))
+     (fd/in w h (fd/interval 10 100))))
+
+(l/defne non-intersecting [a b]
+  ([[x1 y1 w1 h1]
+    [x2 y2 w2 h2]]
+     (box [ x1 y1 w1 h1])
+     (box [ x2 y2 w2 h2])
+     (l/conde
+      [ (fd/eq (< (+ x1 w1) w1))]
+      [ (fd/eq (< (+ x2 w2) x1))])
+     (l/conde
+      [ (fd/eq (< (+ y1 h1) h2))]
+      [ (fd/eq (< (+ y2 h2) h1))])))
