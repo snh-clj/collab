@@ -17,16 +17,20 @@
     (l/fresh [r s]
       (l/== s 3)
       (l/== r s)
-      (l/== r 4)
+
+                                        ;(l/== r 4)
       (l/== q r))))
 
 (defn problem-membero-2-3-4 []
-  "BROKEN: Make this return a result of '(2 3 4)"
+  "BROKEN: Make this return a result of '((2 3 4))"
+  '((2) (3) (4))
   (l/run 10 [q]
     (l/fresh [a]
       (l/membero a [1 2 3])
       (l/membero q [3 4 5])
-      (l/== a q))))
+      (l/conde (l/== a q) (l/== (dec a) q) (l/== a (dec q)))
+      ; (l/== a q)
+      )))
 
 (defn problem-anja-orange []
   "BROKEN: Make Anja's favorite fruit be '(:orange)"
@@ -35,7 +39,7 @@
       (l/== all [you me hiro anja])
       (l/== you :apple)
       (l/== [:banana :pear] [me hiro])
-      (l/appendo [you me] [hiro :tomato] all))))
+      (l/appendo [you me] [hiro :orange] all))))
 
 ;; Datomic
 (def p1-db [[1 :person/name "Bob"]
@@ -58,7 +62,7 @@
        :in $ ?child
        :where
        [?e :person/name ?mother]
-       [?e :person/mother ?f]
+       [?f :person/mother ?e]
        [?f :person/name ?child]]
      p1-db child))
 
