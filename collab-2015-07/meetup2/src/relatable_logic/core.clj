@@ -17,25 +17,27 @@
     (l/fresh [r s]
       (l/== s 3)
       (l/== r s)
-      (l/== r 4)
+      ;;(l/== r 4)
       (l/== q r))))
+
+(problem-get-3 )
 
 (defn problem-membero-2-3-4 []
   "BROKEN: Make this return a result of '(2 3 4)"
   (l/run 10 [q]
-    (l/fresh [a]
-      (l/membero a [1 2 3])
-      (l/membero q [3 4 5])
+    (l/fresh [a b]
+      (l/membero a [1 2 3 4])
+      (l/membero b [2 3 4 5])
+      (l/== b q)
       (l/== a q))))
 
 (defn problem-anja-orange []
   "BROKEN: Make Anja's favorite fruit be '(:orange)"
   (l/run 10 [anja]
     (l/fresh [you me hiro all]
-      (l/== all [you me hiro anja])
       (l/== you :apple)
-      (l/== [:banana :pear] [me hiro])
-      (l/appendo [you me] [hiro :tomato] all))))
+      (l/== [:banana :pear :orange] [me hiro anja])
+      (l/appendo [you me] [hiro anja] all))))
 
 ;; Datomic
 (def p1-db [[1 :person/name "Bob"]
@@ -57,10 +59,13 @@
   (q '[:find ?mother
        :in $ ?child
        :where
-       [?e :person/name ?mother]
-       [?e :person/mother ?f]
-       [?f :person/name ?child]]
+       [?f :person/name ?child]
+       [?f :person/mother ?e]       ;;; ?f and ?e where swapped
+       [?e :person/name ?mother]]
      p1-db child))
+
+
+
 
 ;; PLDB - Prolog DB
 (pldb/db-rel r-name my-id my-name)
@@ -89,9 +94,9 @@
   (pldb/with-db p2-db
     (l/run 10 [father]
       (l/fresh [my-id father-id]
-        (r-name my-id father)
+        (r-name my-id child)
         (r-father my-id father-id)
-        (r-name father-id child)))))
+        (r-name father-id father)))))
 
 (defn magic-squares
   "In recreational mathematics, a magic square is an arrangement of
@@ -115,8 +120,28 @@
      ;; each square can have the value 1-9
      (fd/in a b c d e f g h i (fd/interval 1 9))
      ;; numbers 1-9 should only appear once
-     (fd/distinct [a b])
+     (fd/distinct [a b c d e f g h i])
      (fd/eq
+      (= (+ a b c)
+         (+ d e f))
+      (=
+       (+ d e f)
+       (+ g h i))
+      (=
+       (+ g h i)
+       (+ a d g))
+      (=
+       (+ a d g)
+       (+ b e h))
+      (=
+       (+ b e h)
+       (+ c f i))
+      (=
+       (+ c f i)
+       (+ a e i))
+      (=
+       (+ a e i)
+       (+ g e c))
       #_you_may_want_something_here
       ))
    (map #(partition 3 %))))
