@@ -6,7 +6,7 @@ Each collaboration event has a series of directories named in the
 format `meetup?`. The `meetup0` directory is a base directory used to
 seed the per-group directories named `meetup1` through `meetup9`.
 
-`current-collab` is a symling pointing to the current collaboration activity.
+`current-collab` is a symlink pointing to the current collaboration activity.
 
 ## Collab Events:
 
