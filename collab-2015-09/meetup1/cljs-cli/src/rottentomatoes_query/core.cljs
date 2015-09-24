@@ -20,16 +20,29 @@
 
 (def api-base "http://api.rottentomatoes.com/api/public/v1.0")
 
-(def title "The Sting")
+(def title "7")
+
+(def search-keys (range 0 10))
 
 (defn -main [& _args]
-  (let [rq (str api-base "/movies.json" "?q=" title "&apikey=" api-key)]
+  (map 
+   (fn [key] (let [rq (str api-base "/movies.json" "?q=" key "&apikey=" api-key)]
     (.get request rq
           (fn [err resp]
             (let [response-data (-> resp .-body js/JSON.parse js->clj)
-                  movies (get response-data "movies")]
-              (dorun (map #(println :title (get % "title") "\n\t"
-                                    :cast-query-url (get-in % ["links" "cast"]))
-                          movies)))))))
+                  total (get response-data "total")]
+              (println :query key :total total))))))
+   search-keys))
 
 (set! *main-cli-fn* -main)
+
+            #_(let [response-data (-> resp .-body js/JSON.parse js->clj)
+                  movies (get response-data "movies")]
+              (dorun (map
+                      #_(println :obj %)
+                      #(println :title (get % "title") "\n\t"
+                                 :year (get % "year")
+                                    ;;:cast-query-url (get-in %
+                                    ;["links" "cast"])
+                                 )
+                      movies)))
