@@ -1,7 +1,7 @@
 (ns bonus-round.core
   (:require [clojure.core.logic :as l]
-            [clojure.core.logic.fd :as fd])
-  )
+            [clojure.core.logic.fd :as fd]
+            [clojure.math.combinatorics :as combo]))
 
 ;; 2014-04
 ;; Penultimate Problem: 4Clojure 178
@@ -41,10 +41,48 @@
 ;; P.S. For those already comfortable with Clojure, this problem has a
 ;; nice solution using core.logic.
 
+(defn map-add-fn
+  [i]
+  (= 15 (reduce + i)))
+
+(defn diags
+  [matrix]
+  (let [matrix (vec (flatten matrix))]
+    [[(get matrix 2) (get matrix 4) (get matrix 6)]
+     [(get matrix 0) (get matrix 4) (get matrix 8)]]))
+
+(defn adds-to-15?
+  [matrix]
+  ;;; Rows.
+  (when
+    (and
+      (every?
+        true?
+        (map
+          map-add-fn
+          (diags matrix)))
+      (every?
+        true?
+        (map
+          map-add-fn
+        matrix))
+    (every?
+      true?
+      (map map-add-fn (apply map list matrix))))
+    matrix))
+
+(defn flat-to-vecvec
+  [fl]
+  (vec (map vec (partition 3 fl))))
+
+(defn generate-perms
+  []
+  (map flat-to-vecvec (combo/permutations [1 2 3 4 5 6 7 8 9])))
+
 (defn magic-squares []
-  [[[1 2 3] [4 5 6] [7 8 9]]
-   [[9 8 7] [6 5 4] [3 2 1]]
-   ,,,])
+  (some
+    adds-to-15?
+    (generate-perms)))
 
 ;; 2014-09
 ;; 2048 -- come back to this?
