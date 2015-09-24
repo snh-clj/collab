@@ -17,15 +17,14 @@
     (l/fresh [r s]
       (l/== s 3)
       (l/== r s)
-      (l/== r 4)
       (l/== q r))))
 
 (defn problem-membero-2-3-4 []
   "BROKEN: Make this return a result of '(2 3 4)"
   (l/run 10 [q]
     (l/fresh [a]
-      (l/membero a [1 2 3])
-      (l/membero q [3 4 5])
+      (l/membero a [1 2 3 4])
+      (l/membero q [3 2 4 5])
       (l/== a q))))
 
 (defn problem-anja-orange []
@@ -35,16 +34,17 @@
       (l/== all [you me hiro anja])
       (l/== you :apple)
       (l/== [:banana :pear] [me hiro])
-      (l/appendo [you me] [hiro :tomato] all))))
+      ;; (l/== [you me hiro :orange] [you me hiro anja])
+      (l/appendo [you me] [hiro :orange] all))))
 
 ;; Datomic
-(def p1-db [[1 :person/name "Bob"]
-            [1 :person/mother 3]
-            [2 :person/name "Alice"]
-            [2 :person/mother 3]
-            [3 :person/name "Mari"]
-            [3 :person/mother 4]
-            [4 :person/name "Fran"]])
+(def p1-db [[:person/name 1 "Bob"]
+            [:person/mother 1 3]
+            [:person/name 2 "Alice"]
+            [:person/mother 2 3]
+            [:person/name 3 "Mari"]
+            [:person/mother 3 4]
+            [:person/name 4 "Fran"]])
 
 (defn problem-find-my-mother
   "BROKEN: Make this correctly find the mother of 'child.
@@ -57,9 +57,9 @@
   (q '[:find ?mother
        :in $ ?child
        :where
-       [?e :person/name ?mother]
-       [?e :person/mother ?f]
-       [?f :person/name ?child]]
+       [:person/name ?e ?mother]
+       [:person/mother ?f ?e]
+       [:person/name ?f ?child]]
      p1-db child))
 
 ;; PLDB - Prolog DB
@@ -89,9 +89,11 @@
   (pldb/with-db p2-db
     (l/run 10 [father]
       (l/fresh [my-id father-id]
-        (r-name my-id father)
+        (r-name father-id father)
+        ;; my-id = 2, father-id = 3
         (r-father my-id father-id)
-        (r-name father-id child)))))
+        ;; child = Alice, father-id = 2
+        (r-name my-id child)))))
 
 (defn magic-squares
   "In recreational mathematics, a magic square is an arrangement of
@@ -112,13 +114,18 @@
    (l/run* [a b c
             d e f
             g h i]
-     ;; each square can have the value 1-9
-     (fd/in a b c d e f g h i (fd/interval 1 9))
-     ;; numbers 1-9 should only appear once
-     (fd/distinct [a b])
-     (fd/eq
-      #_you_may_want_something_here
-      ))
+           ;; each square can have the value 1-9
+           (fd/in a b c d e f g h i (fd/interval 1 9))
+           ;; numbers 1-9 should only appear once
+           (fd/distinct [a b c d e f g h i])
+           (fd/eq
+            (= (+ a b c) (+ d e f))
+            (= (+ a b c) (+ g h i))
+            (= (+ a b c) (+ a d g))
+            (= (+ a b c) (+ b e h))
+            (= (+ a b c) (+ c f i))
+            (= (+ a b c) (+ a e i))
+            (= (+ a b c) (+ g e c))))
    (map #(partition 3 %))))
 
 (defn triangulizer
