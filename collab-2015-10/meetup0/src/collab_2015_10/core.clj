@@ -9,3 +9,11 @@
   #_your_solution_here
   )
 
+;; BONUS ROUND
+;;
+;; Create your own REPL. Feel free to use the Clojure reader and be
+;; sure to preserve the environment from prompt to prompt.
+
+(defn my-repl
+  [initial-env]
+  )
