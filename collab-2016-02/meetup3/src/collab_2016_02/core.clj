@@ -1,4 +1,5 @@
-(ns collab-2016-02.core)
+(ns collab-2016-02.core
+  (:require [clojure.walk :as walk]))
 
 ;; Solutions by: <individual or group names here>
 
@@ -42,8 +43,32 @@
 ;;
 ;; You may wish to read http://en.wikipedia.org/wiki/Currying
 
+(defn full-name [l f m]
+  (str l ", " f " " m))
+
+(defn f-m [f m]
+  (fn [l] (str l ", " f " " m)))
+
 (defn four-clojure-158 [curried-fns]
-  ::no-implementation)
+  (fn [& args]
+    (loop [result curried-fns
+           args args]
+      (if (empty? args)
+        result
+        (recur (result (first args))
+               (rest args)))))
+  #_
+  (fn four-clojure-158- [& args]
+    (prn args)
+    (let [result (curried-fns (first args))]
+      (if (next args)
+        (result (next args))
+        result))
+    (comment
+      (curried-fns (first args))
+      )
+
+    ))
 
 ;; https://www.4clojure.com/problem/164 -- Language of a DFA
 ;;
@@ -82,8 +107,40 @@
 ;; to an adjacent number on the next row until the bottom of the
 ;; triangle is reached.
 
-(defn four-clojure-79 [triangle]
-  ::no-implementation)
+(defn four-clojure-79
+  ([triangle] (four-clojure-79 triangle 0 0))
+  ([triangle current-index current-sum]
+     (if (empty? triangle)
+       current-sum
+       (min (four-clojure-79 (rest triangle)
+                             current-index
+                             (+ current-sum (nth (first triangle) current-index)))
+            (four-clojure-79 (rest triangle)
+                             (inc current-index)
+                             (+ current-sum (nth (first triangle) current-index)))))))
+
+(comment
+        [   [1]
+            [2 4]
+            [5 1 4]
+            [2 3 4 5]]
+
+        [[1]
+         [2 4]
+         [5 1 4]
+         [2 3 4 5]]
+
+        [[0 0 0 0]
+         [0 0 0 1]
+         [0 0 1 1]
+         [0 0 1 2]
+         [0 1 1 1]
+         [0 1 1 2]
+         [0 1 2 2]
+         [0 1 2 3]]
+
+        {[3 2 1 9 4 5] 24}
+        )
 
 (comment
   ;; Run this first

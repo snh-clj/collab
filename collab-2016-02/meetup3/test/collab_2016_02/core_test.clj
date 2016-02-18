@@ -50,6 +50,8 @@
 ;;
 ;; You may wish to read http://en.wikipedia.org/wiki/Currying
 
+
+
 (deftest four-clojure-158
   (testing "4Clojure #158"
     (let [__ cc/four-clojure-158]
