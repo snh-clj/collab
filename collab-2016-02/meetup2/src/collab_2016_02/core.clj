@@ -1,6 +1,6 @@
 (ns collab-2016-02.core)
 
-;; Solutions by: <individual or group names here>
+;; Solutions by: Dave and Bob (formerly known as "Bob the Intern")
 
 ;; Clojure reference:
 ;; http://ClojureDocs.org
@@ -29,8 +29,19 @@
 ;; Recognize Playing Cards: a hash-map of :suit and a numeric
 ;; :rank. Cards with a larger rank are stronger.
 
+(defn filter-by-suit [suit cards]
+  (filter #(= (:suit %) suit) cards))
+
 (defn four-clojure-141 [trump-suit]
-  ::no-implementation)
+  (fn winner [cards]
+    (let [winning-suit (if (seq (filter-by-suit trump-suit cards))
+                         trump-suit
+                         (:suit (first cards)))]
+      {:suit winning-suit
+       :rank (->> cards
+                  (filter #(= (:suit %) winning-suit))
+                  (map :rank)
+                  (apply max))})))
 
 ;; https://www.4clojure.com/problem/158 -- Decurry
 ;;
