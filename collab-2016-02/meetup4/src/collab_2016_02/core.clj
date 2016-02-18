@@ -81,9 +81,29 @@
 ;; vectors. The path should start at the top of the triangle and move
 ;; to an adjacent number on the next row until the bottom of the
 ;; triangle is reached.
+;;
+;;
+;;
+;;
 
-(defn four-clojure-79 [triangle]
-  ::no-implementation)
+(defn ys
+    [y]
+      (if  (=  (count  (first y)) 2)
+            y
+                (recur  (mapcat  (partial partition  (dec  (count  (first y))) 1) y))))
+ 
+(defn mergexy
+    [x y]
+      (mapcat #(list  (conj %1  (first %2))  (conj %1  (second %2))) x y))
+ 
+(defn paths
+    [tri]
+      (reduce #(mergexy %1  (ys  (list %2)))  (list  (first tri))  (rest tri)))    
+
+(defn four-clojure-79
+    [tri] 
+      (apply min  (map #(apply + %)  (paths tri))))
+
 
 (comment
   ;; Run this first
