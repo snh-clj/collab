@@ -8,7 +8,7 @@
 
   Write a function which replicates each element of a sequence a variable number of times."
   [coll n]
-  (mapcat #(repeat n %) coll))
+  ::no-implementation)
 
 
 (defn four-clojure-38
@@ -19,7 +19,7 @@
 
   Write a function which takes a variable number of parameters and returns the maximum value."
   [& args]
-  (reduce (fn [x r] (if (> x r) x r)) args))
+  ::no-implementation)
 
 
 (def four-clojure-76
@@ -35,7 +35,7 @@
   function, and then trampoline returns that non-function value. This
   is useful for implementing mutually recursive algorithms in a way
   that won't consume the stack."
-  [1 3 5 7 9 11])
+  ::no-implementation)
 
 (defn four-clojure-78
   "http://www.4clojure.com/problem/78 -- Reimplement Trampoline
@@ -44,12 +44,8 @@
   Topics: core-functions
 
   Reimplement the function described [above] in \"Intro to Trampoline\"."
-  ([x]
-   (if (fn? x)
-     (recur (x))
-     x))
-  ([f & args]
-   (four-clojure-78 (apply f args))))
+  [f & args]
+  ::no-implementation)
 
 (defn four-clojure-119
   "http://www.4clojure.com/problem/119 -- Win at Tic-Tac-Toe
