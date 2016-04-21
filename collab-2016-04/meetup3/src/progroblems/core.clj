@@ -8,7 +8,7 @@
 
   Write a function which replicates each element of a sequence a variable number of times."
   [coll n]
-  ::no-implementation)
+  (mapcat #(repeat n %) coll))
 
 
 (defn four-clojure-38
@@ -19,7 +19,38 @@
 
   Write a function which takes a variable number of parameters and returns the maximum value."
   [& args]
-  ::no-implementation)
+  (loop [remaining-items args
+         max-value nil]
+    (if (empty? remaining-items)
+      max-value
+      (recur
+        (rest remaining-items)
+        (if (or
+              (nil? max-value)
+              (> (first remaining-items) max-value))
+          (first remaining-items) max-value)))))
+
+(defn some-function
+  [max-value args]
+  (if (empty? args) max-value
+    #(some-function 
+       (if
+         (or
+           (nil? max-value)
+           (> (first args) max-value))  
+         (first args) max-value)
+       (rest args))))
+
+(defn four-clojure-38-trampoline
+  [& args]
+  (trampoline some-function nil args))
+
+(comment
+  
+  (time (apply four-clojure-38 (take 10000 (repeatedly #(rand-int 1000)))))
+  (time (apply four-clojure-38-trampoline (take 10000 (repeatedly #(rand-int 1000)))))
+
+  )
 
 
 (def four-clojure-76
