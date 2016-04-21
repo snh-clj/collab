@@ -8,7 +8,9 @@
 
   Write a function which replicates each element of a sequence a variable number of times."
   [coll n]
-  ::no-implementation)
+  (apply concat
+         (for [element coll]
+           (repeat n element))))
 
 
 (defn four-clojure-38
