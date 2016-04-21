@@ -8,7 +8,15 @@
 
   Write a function which replicates each element of a sequence a variable number of times."
   [coll n]
-  ::no-implementation)
+
+  #_
+  (apply concat
+         (map (fn [x]
+                (for [i (range n)]
+                  x))
+              coll))
+
+  (mapcat #(repeat n %) coll))
 
 
 (defn four-clojure-38
