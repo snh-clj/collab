@@ -8,18 +8,19 @@
 
   Write a function which replicates each element of a sequence a variable number of times."
   [coll n]
-  ::no-implementation)
-
+  (flatten (repeat n coll))
+  )
 
 (defn four-clojure-38
-  "http://www.4clojure.com/problem/38 -- Maximum Value
-
-  Difficulty: easy
-  Topics: core-functions
-
-  Write a function which takes a variable number of parameters and returns the maximum value."
   [& args]
-  ::no-implementation)
+  (loop [args (rest args)
+         current-max (first args)]
+    (if (empty? args)
+      current-max
+      (recur (rest args)
+             (if (> (first args) current-max)
+               (first args)
+                              current-max)))))
 
 
 (def four-clojure-76
