@@ -55,15 +55,41 @@
 
   As in Problem 73, a tic-tac-toe board is represented by a two
   dimensional vector. X is represented by :x, O is represented by
-  :o,and empty is represented by :e. Create a function that accepts a
+  :o, and empty is represented by :e. Create a function that accepts a
   game piece and board as arguments, and returns a set (possibly
   empty) of all valid board placements of the game piece which would
   result in an immediate win.
 
   Board coordinates should be as in calls to get-in. For example,
-  [0 1] is the topmost row, center position."
-  [game-piece board]
-  ::no-implementation)
+  [0 1] is the topmost row, center position.
+
+  * collect the coordinates of empty positions
+  * test each coordinate pair for a win
+  * we need a winning? fn
+
+"
+  [player board]
+  (let [rotate-board (fn [board] (apply map vector (reverse board)))
+        get-diagonal (fn [board] (map-indexed #(nth %2 %1) board))
+        winning-row? (fn [player row] (= #{player} (into #{} row)))
+        winner? (fn [player board]
+                  (let [rotated-board (rotate-board board)
+                        diagonals [(get-diagonal board)
+                                   (get-diagonal rotated-board)]
+                        all-rows (concat board rotated-board diagonals)]
+                    (some (partial winning-row? player) all-rows)))
+        board-size (count board) ; ASSUMPTION: square boards only!
+        ]
+    (apply hash-set
+           (filter identity
+                   (for [row-coordinate (range board-size)
+                         col-coordinate (range board-size)]
+                     (let [coordinates [row-coordinate col-coordinate]
+                           coordinate-value (get-in board coordinates)]
+                       (when (= coordinate-value :e)
+                         (when (winner? player
+                                        (assoc-in board coordinates player))
+                           coordinates))))))))
 
 (defn four-clojure-111
   "http://www.4clojure.com/problem/111 -- Crossword puzzle!

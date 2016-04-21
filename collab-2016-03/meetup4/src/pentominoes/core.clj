@@ -136,3 +136,37 @@
   XXX
   X X
 ")
+
+(def p3 [0 0 0])
+(def p3 [0 1 1])
+(def p3 [0 2 2])
+(def p3 [0 3 3])
+
+(def p3 [0 0 1])
+(def p3 [0 1 2])
+(def p3 [0 2 3])
+
+(defn generate [omino]
+  (mapv (fn [index]
+          (conj omino index))
+        (range (condp = (count omino)
+                 ;; just use the max number of open edges possible for
+                 ;; a given omino
+                 1 4
+                 2 6
+                 3 8
+                 4 10))))
+
+(defn generate-test []
+  (= (generate [0])
+     [[0 0] [0 1] [0 2] [0 3]]))
+
+(defn normalize [omino]
+  (reduce (fn [move]
+            )
+          [[]]
+          omino))
+
+(defn rotate [rot omino])
+
+(defn reflect [omino])

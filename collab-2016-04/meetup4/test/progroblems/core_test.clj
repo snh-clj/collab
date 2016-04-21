@@ -112,7 +112,16 @@
       (is (= (__ :o [[:x :x :o]
                      [:o :e :o]
                      [:x :e :e]])
-             #{[2 2] [1 1]})))))
+             #{[2 2] [1 1]}))
+      (is (= (__ :o [[:x :e]
+                     [:o :e]])
+             #{[0 1] [1 1]}))
+      ;; It works for any board size!
+      (is (= (__ :o [[:x :x :o :e]
+                     [:o :e :o :e]
+                     [:o :o :o :e]
+                     [:o :e :e :e]])
+             #{[0 3] [2 3] [3 2]})))))
 
 
 ;; http://www.4clojure.com/problem/111 -- Crossword puzzle!
