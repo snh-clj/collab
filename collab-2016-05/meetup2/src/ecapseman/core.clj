@@ -10,7 +10,20 @@
 
   Restriction: range"
   [x y]
-  ::no-implementation)
+  ((rand-nth [
+
+              #(take (- %2 %) (iterate inc %))
+
+              (fn [start stop]
+                (loop [index start
+                       list-of-integers []]
+                  (println :index index :list-of-integers list-of-integers)
+                  (if (>= index stop)
+                    list-of-integers
+                    (recur (inc index) (concat list-of-integers [index])))))
+
+              ])
+   x y))
 
 (defn four-clojure-29
   "https://www.4clojure.com/problem/29 -- Get the Caps
@@ -18,7 +31,8 @@
   Difficulty: easy
   Topics: strings
 
-  Write a function which takes a string and returns a new string containing only the capital letters."
+  Write a function which takes a string and returns a new string
+  containing only the capital letters."
   [s]
   ::no-implementation)
 
