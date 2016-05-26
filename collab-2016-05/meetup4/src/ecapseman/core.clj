@@ -10,7 +10,14 @@
 
   Restriction: range"
   [x y]
-  ::no-implementation)
+  (reverse
+    (loop [working-list (list)
+           current-value x]
+      (if (>= current-value y)
+        working-list
+        (recur
+          (cons current-value working-list)
+          (inc current-value))))))
 
 (defn four-clojure-29
   "https://www.4clojure.com/problem/29 -- Get the Caps
@@ -20,7 +27,14 @@
 
   Write a function which takes a string and returns a new string containing only the capital letters."
   [s]
-  ::no-implementation)
+  (apply str (re-seq #"[A-Z]" s)))
+
+(defn anagrams
+  [words word-to-match]
+  (set
+    (filter
+      #(= (sort word-to-match) (sort %))
+      words)))
 
 (defn four-clojure-77
   "https://www.4clojure.com/problem/77 -- Anagram Finder
@@ -35,7 +49,10 @@
   words. Words without any anagrams should not be included in the
   result."
   [words]
-  ::no-implementation)
+  (set
+    (filter
+      (fn [i] (> (count i) 1))
+      (map (partial anagrams words) words))))
 
 (defn project-euler-4-prep
   "Write a predicate function that takes a number and returns a truthy
