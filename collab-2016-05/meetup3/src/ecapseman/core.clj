@@ -10,7 +10,12 @@
 
   Restriction: range"
   [x y]
-  ::no-implementation)
+  (loop [n x
+         out []]
+    (if (>= n y)
+      out
+      (recur (inc n)
+             (conj out n)))))
 
 (defn four-clojure-29
   "https://www.4clojure.com/problem/29 -- Get the Caps
@@ -20,7 +25,11 @@
 
   Write a function which takes a string and returns a new string containing only the capital letters."
   [s]
-  ::no-implementation)
+
+
+
+  (let [caps (into #{} (seq "ABCDEFGHIJKLMNOPQRSTUVWXYZ"))]
+    (apply str (filter caps (seq s)))))
 
 (defn four-clojure-77
   "https://www.4clojure.com/problem/77 -- Anagram Finder
