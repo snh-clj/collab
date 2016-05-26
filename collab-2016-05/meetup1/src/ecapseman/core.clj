@@ -10,7 +10,10 @@
 
   Restriction: range"
   [x y]
-  ::no-implementation)
+  (loop [result [] start x end y]
+    (if (< start end)
+      (recur (conj result start) (inc start) end)
+      result)))
 
 (defn four-clojure-29
   "https://www.4clojure.com/problem/29 -- Get the Caps
