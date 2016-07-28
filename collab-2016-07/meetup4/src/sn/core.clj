@@ -8,7 +8,12 @@
 
   Write a function which returns the first X fibonacci numbers."
   [x]
-  ::no-implementation)
+  (loop [cnt x s []]
+    (if (zero? cnt) 
+      s
+      (cond (empty? s) (recur (dec cnt) [1])
+            (= (count s) 1) (recur (dec cnt) [1 1])
+            :else (recur (dec cnt) (conj s (+ (last s) (nth s (- (count s) 2)))))))))
 
 (defn four-clojure-30
   "http://www.4clojure.com/problem/30 -- Compress a Sequence
@@ -19,6 +24,19 @@
   Write a function which removes consecutive duplicates from a sequence."
   [coll]
   ::no-implementation)
+
+(defn incsub
+  [[outseq curseq] n]
+  #_(println "outseq:" outseq "curseq:" curseq)
+  (cond (empty? curseq) [outseq [n]]
+        (> n (last curseq)) [outseq (conj curseq n)]
+        :else [(conj outseq curseq) [n]]))
+
+(defn maxlencoll
+  [existing new]
+  (if (> (count new) (count existing))
+    new
+    existing))
 
 (defn four-clojure-53
   "http://www.4clojure.com/problem/53 -- Longest Increasing Sub-Seq
@@ -31,7 +49,12 @@
   same length, use the one that occurs first. An increasing
   sub-sequence must have a length of 2 or greater to qualify."
   [coll]
-  ::no-implementation)
+  (reduce maxlencoll
+    (first
+    (filter #(>= (count %) 2)
+            (let [[l r] (reduce incsub [[] []] coll)]
+              (conj l r))))
+    []))
 
 (defn four-clojure-54
   "http://www.4clojure.com/problem/54 -- Partition a Sequence
@@ -42,7 +65,8 @@
   Write a function which returns a sequence of lists of x items
   each. Lists of less than x items should not be returned."
   [x coll]
-  ::no-implementation)
+  
+  (filter #(>= (count %) x) (partition x coll)))
 
 (defn four-clojure-60
   "http://www.4clojure.com/problem/60 -- Sequence Reductions
