@@ -18,7 +18,10 @@
 
   Write a function which removes consecutive duplicates from a sequence."
   [coll]
-  ::no-implementation)
+  (->> coll
+       (partition 2 1 [::different])
+       (remove #(apply = %))
+       (map first)))
 
 (defn four-clojure-53
   "http://www.4clojure.com/problem/53 -- Longest Increasing Sub-Seq
