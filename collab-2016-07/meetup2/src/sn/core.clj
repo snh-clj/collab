@@ -1,5 +1,21 @@
 (ns sn.core)
 
+(defn four-clojure-26-mark-1
+  "http://www.4clojure.com/problem/26 -- Fibonacci Sequence
+
+  Difficulty: easy
+  Topics: Fibonacci seqs
+
+  Write a function which returns the first X fibonacci numbers."
+  [cycles]
+  (loop [cycles-to-go cycles
+         fib-seq [1 1]]
+    (if (> cycles-to-go 2)
+      (recur (dec cycles-to-go)
+             (conj fib-seq (+ (first (reverse fib-seq))
+                              (second (reverse fib-seq)) )))
+      fib-seq)))
+
 (defn four-clojure-26
   "http://www.4clojure.com/problem/26 -- Fibonacci Sequence
 
@@ -7,8 +23,13 @@
   Topics: Fibonacci seqs
 
   Write a function which returns the first X fibonacci numbers."
-  [x]
-  ::no-implementation)
+  [cycles]
+  (loop [cycles-to-go cycles
+         fib-seq [1 1]]
+    (if (> cycles-to-go 2)
+      (recur (dec cycles-to-go)
+             (conj fib-seq (apply + (take 2 (reverse fib-seq)))))
+      fib-seq)))
 
 (defn four-clojure-30
   "http://www.4clojure.com/problem/30 -- Compress a Sequence
