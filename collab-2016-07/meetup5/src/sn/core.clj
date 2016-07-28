@@ -54,8 +54,23 @@
   intermediate value of the reduction. Your function must accept
   either two or three arguments, and the return sequence must be
   lazy."
-  ([f coll] ::no-implementation)
-  ([f init coll] ::no-implementation))
+  ([f coll]
+   (four-clojure-60 f (first coll) (rest coll)))
+  ([f init coll]
+   (lazy-seq
+     (when-let [s (seq coll)]
+       (let [i (if (nil? init) (first s) (f init (first s)))]
+         (cons i (four-clojure-60 f i (next coll))))))
+
+   ;;; Non-lazy loop-recur version.
+   #_(loop
+     [rv coll
+      rval (list init)]
+     (if (empty? rv)
+       (vec (reverse rval))
+       (recur
+         (next rv)
+         (cons (f (first rval) (first rv)) rval))))))
 
 (defn four-clojure-73
   "http://www.4clojure.com/problem/73 -- Analyze a Tic-Tac-Toe Board
