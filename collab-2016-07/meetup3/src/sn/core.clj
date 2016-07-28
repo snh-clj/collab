@@ -1,5 +1,12 @@
 (ns sn.core)
 
+
+(def fibo (map second
+               (iterate (fn [[x y]]
+                          [y (+ x y)])
+                        [0 1])))
+
+
 (defn four-clojure-26
   "http://www.4clojure.com/problem/26 -- Fibonacci Sequence
 
@@ -8,7 +15,8 @@
 
   Write a function which returns the first X fibonacci numbers."
   [x]
-  ::no-implementation)
+  (take x fibo))
+
 
 (defn four-clojure-30
   "http://www.4clojure.com/problem/30 -- Compress a Sequence
@@ -18,10 +26,20 @@
 
   Write a function which removes consecutive duplicates from a sequence."
   [coll]
-  ::no-implementation)
+  (let [[f & r] (filter #(= 2 (count %))
+                        (map (fn [[x y]]
+                               (if (= x y)
+                                 [x]
+                                 [x y]))
+                             (partition 2 1 coll)))]
+    (concat f (map second r))))
 
-(defn four-clojure-53
-  "http://www.4clojure.com/problem/53 -- Longest Increasing Sub-Seq
+
+(four-clojure-30 [1 1 1 1 2 3 3 4 4 4 5])
+(distinct [1 1 1 1 2 3 3 4 4 4 5])
+
+
+(defn four-clojure-53  "http://www.4clojure.com/problem/53 -- Longest Increasing Sub-Seq
 
   Difficulty: hard
   Topics: seqs
