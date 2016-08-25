@@ -45,3 +45,41 @@ testing:
 
   (s/conform (s/coll-of _) #{2 4 6 8})
   )
+
+(s/def ::crust #{"gluten-free" "only-gluten" "high-protein" "shale"})
+(s/def ::sauce string?)
+(s/def ::topping string?)
+(s/def ::additional-topping string?)
+(s/def ::additional-toppings (s/coll-of ::additional-topping))
+
+(s/def ::pizza-recipe (s/keys :req [::crust ::sauce ::topping] :opt [::additional-toppings]))
+
+(comment
+  (s/valid? ::pizza-recipe {::crust "gluten-free" ::sauce "sleepy-tomatoes" ::topping "greasy-cheese"})
+  (s/valid? ::pizza-recipe {::crust "gluten-free" ::sauce "sleepy-tomatoes" ::topping "greasy-cheese" ::additional-toppings "The Big Lebowski is my favorite movie!"})
+  (s/valid? ::pizza-recipe {::crust "gluten-free" ::sauce "sleepy-tomatoes" ::topping "greasy-cheese" ::additional-toppings []})
+  (s/valid? ::pizza-recipe {::crust "gluten-free" ::sauce "sleepy-tomatoes" ::topping "greasy-cheese" ::additional-toppings ["puppies"]})
+  (s/valid? ::pizza-recipe {::crust "gluten-free" ::sauce "sleepy-tomatoes" ::topping "greasy-cheese" ::additional-toppings ["puppies" 43]})
+  )
+
+(defn make-pizza [recipe]
+  (if (= "gluten-free" (::crust recipe))
+    (recur (assoc recipe ::crust "only-gluten"))
+    ((juxt ::crust ::sauce ::topping ::additional-toppings) recipe)))
+
+(comment
+  (make-pizza {::crust "gluten-free" ::sauce "sleepy-tomatoes" ::topping "greasy-cheese" ::additional-toppings ["puppies"]})
+  )
+
+(s/fdef make-pizza
+        :args (s/cat :recipe ::pizza-recipe)
+        :ret (s/cat :crust string?
+                    :sauce string?
+                    :topping string?
+                    :additional-toppings (s/nilable ::additional-toppings))
+        :fn  #(-> % :ret first (not= "gluten-free"))     ; {:args ... :ret ...} (:args %) (:ret %)
+        )
+
+(comment
+  (-> `make-pizza test/check test/summarize-results)
+  )

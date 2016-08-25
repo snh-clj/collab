@@ -4,18 +4,26 @@
             [clojure.spec :as s]
             [specifically-spec.core :as ssc]))
 
-(defn gen-test-fn [sym]
-  (->> (test/check sym)
-       (filter :failure)))
+(comment
+  (defn gen-test-fn [sym]
+    (->> (test/check sym)
+         (filter :failure)))
 
-(deftest name-test
-  (is (empty? (gen-test-fn `clojure.core/name))))
+  (deftest name-test
+    (is (empty? (gen-test-fn `clojure.core/name))))
 
-(deftest map-test
-  (is (empty? (gen-test-fn `clojure.core/map))))
+  (deftest map-test
+    (is (empty? (gen-test-fn `clojure.core/map))))
 
-(deftest juxt-test
-  (is (empty? (gen-test-fn `clojure.core/juxt))))
+  (deftest juxt-test
+    (is (empty? (gen-test-fn `clojure.core/juxt))))
+  )
+
+(deftest make-pizza-test
+
+  (is (= {:total 1 :check-passed 1}
+         (-> `ssc/make-pizza test/check test/summarize-results)))
+  )
 
 (comment
 
