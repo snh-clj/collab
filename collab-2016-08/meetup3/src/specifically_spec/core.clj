@@ -37,6 +37,39 @@ testing:
 
 "
 
+(def a-map
+  {:card/suit :heart
+   :card/rank :king})
+
+(s/def :card/suit
+  #{:heart :diamond :spade :club})
+
+(s/def :card/rank
+  (s/or
+    :card/rank-numeric 
+    (s/and
+      integer?
+      #(> % 1)
+      #(< % 11))
+    :card/rank-keyword
+    #{:jack :queen :king :ace}))
+
+(s/def :card/card
+  (s/keys :req [:card/rank :card/suit]))
+
+(comment
+
+  (s/valid? :card/suit (:card/suit a-map))
+  (s/valid? :card/rank (:card/rank a-map))
+  (s/valid? :card/card a-map)
+
+  (s/conform :card/card a-map)
+
+  (clojure.pprint/pprint
+    (s/exercise :card/card))
+
+  )
+
 (comment
   (let [pred _]
     (map #(s/conform pred %) [2 4 6 8]))
