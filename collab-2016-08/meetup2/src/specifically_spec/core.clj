@@ -1,7 +1,8 @@
 (ns specifically-spec.core
   (:require [clojure.spec :as s]
             [clojure.spec.test :as test]
-            [clojure.spec.gen :as gen]))
+            [clojure.spec.gen :as gen]
+            [clojure.pprint :as pprint]))
 
 ;; http://clojure.org/about/spec
 ;; http://clojure.org/guides/spec
@@ -38,10 +39,10 @@ testing:
 "
 
 (comment
-  (let [pred _]
-    (map #(s/conform pred %) [2 4 6 8]))
+  (s/def ::good-number (s/or :x (s/and int? pos? even?)))
+  (let [pred ::good-number]
+    (map #(->> % (s/explain-data pred) (pprint/pprint)) [2 3 -4 -5 6 8 10]))
 
   (s/conform (s/coll-of _) [2 4 6 8])
 
-  (s/conform (s/coll-of _) #{2 4 6 8})
-  )
+  (s/conform (s/coll-of _) #{2 4 6 8}))
