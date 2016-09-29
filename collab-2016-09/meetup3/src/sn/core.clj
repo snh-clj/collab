@@ -12,13 +12,25 @@
 
 (defn four-clojure-30
   "http://www.4clojure.com/problem/30 -- Compress a Sequence
-
   Difficulty: easy
   Topics: seqs
 
   Write a function which removes consecutive duplicates from a sequence."
   [coll]
-  ::no-implementation)
+
+  (comment 
+    (def ex-1 [1 2 2 3 3 3 4 4 4 4 5 5 5 5 5])
+    (def ex-2 [nil nil 1 2 2 1 1 1 nil nil 2 1 2])
+    )
+
+  (let [my-fn (fn [a b]
+               (if (empty? a)
+                 (conj a b)
+                 (let [c (last a)]
+                   (if (= c b)
+                     a
+                     (conj a b)))))]
+    (reduce my-fn [] coll)))
 
 (defn four-clojure-53
   "http://www.4clojure.com/problem/53 -- Longest Increasing Sub-Seq
@@ -54,8 +66,15 @@
   intermediate value of the reduction. Your function must accept
   either two or three arguments, and the return sequence must be
   lazy."
-  ([f coll] ::no-implementation)
-  ([f init coll] ::no-implementation))
+  ([f coll] 
+     (if-let [s (seq coll)] 
+      (four-clojure-60 f (first s) (rest s))
+
+  ([f init coll] 
+    (let [s (seq coll)
+          x (f init (first s))]
+      (list x
+        (four-clojure-60 f x (rest s))))))
 
 (defn four-clojure-73
   "http://www.4clojure.com/problem/73 -- Analyze a Tic-Tac-Toe Board
