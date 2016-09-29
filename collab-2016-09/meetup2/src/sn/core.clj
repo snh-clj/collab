@@ -1,5 +1,10 @@
 (ns sn.core)
 
+(defn fib [s]
+  (let [sum2 (apply + (take 2 (reverse s)))]
+    (conj s sum2)))
+
+
 (defn four-clojure-26
   "http://www.4clojure.com/problem/26 -- Fibonacci Sequence
 
@@ -8,7 +13,7 @@
 
   Write a function which returns the first X fibonacci numbers."
   [x]
-  ::no-implementation)
+  (take x (last (take x (iterate fib '[1 1])))))
 
 (defn four-clojure-30
   "http://www.4clojure.com/problem/30 -- Compress a Sequence
@@ -46,6 +51,7 @@
 
 (defn four-clojure-60
   "http://www.4clojure.com/problem/60 -- Sequence Reductions
+
 
   Difficulty: medium
   Topics: seqs core-functions
