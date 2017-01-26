@@ -250,7 +250,6 @@
    sort
    reverse))
 
-
 (defn datom-db-board [b]
   (let [db (d/empty-db
             (zipmap modes
@@ -262,19 +261,45 @@
                  [:db/add src mode dst])]
     (d/db-with db datoms)))
 
-#_
-(d/q '[:find ?n ?m
-       :where
-       [116 ?m ?b]
-       [?b ?m ?c]
-       [?c ?m ?d]
-       [?d ?m ?n]
-       [(even? ?b)]
-       [(even? ?c)]
-       [(even? ?d)]
-       [(even? ?n)]
-       ]
-     db)
+(def db (datom-db-board board))
+
+(defn firstquery []
+  (d/q '[:find ?n ?m
+         :where
+         [116 ?m ?b]
+         [?b ?m ?c]
+         [?c ?m ?d]
+         [?d ?m ?n]
+         [(even? ?b)]
+         [(even? ?c)]
+         [(even? ?d)]
+         [(even? ?n)]
+         ]
+       db))
+
+(defn generate-query [modes]
+  (map-indexed
+   (fn [index mode]
+     [(symbol (str "?" index)) mode (symbol (str "?" (inc index)))])
+   modes))
+
+(defn detect [db start & modes]
+  (let [where-clauses (generate-query modes)
+        end-destination (-> where-clauses last last) ; get the last destination lvar
+        query {:find [end-destination]
+               :in ['$ '?0]
+               :where
+               where-clauses}]
+    (println query)
+    (d/q query
+         db
+         start)))
+
+(comment
+  (detect db 116 :taxi :bus :taxi :train)
+
+  (detect db 116 :taxi :taxi :taxi :bus)
+  )
 
 #_
 (d/q '[:find ?dst
