@@ -288,6 +288,16 @@
        (trains ?t ?src2)]]
    db)
 
+;; Find and show count for most options in three moves
+#_
+(d/q '[:find ?m1 ?m2 ?m3 (count-distinct ?dst) (distinct ?dst)
+       :in ?start $
+       :where
+       [?start ?m1 ?a]
+       [?a ?m2 ?b]
+       [?b ?m3 ?dst]]
+     114
+     db)
 #_
 (defn all-distinct? [& args]
   (let [set1 (into #{} args)
