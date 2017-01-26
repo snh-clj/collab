@@ -262,17 +262,12 @@
                  [:db/add src mode dst])]
     (d/db-with db datoms)))
 
-#_
-(d/q '[:find ?n ?m
+(d/q '[:find ?d
        :where
-       [116 ?m ?b]
-       [?b ?m ?c]
-       [?c ?m ?d]
-       [?d ?m ?n]
-       [(even? ?b)]
-       [(even? ?c)]
-       [(even? ?d)]
-       [(even? ?n)]
+       [116 :taxi ?b]
+       [?b :taxi ?c]
+       [?c :taxi ?d]
+[(scotlandyard.core/all-distinct 116 ?b ?c ?d)]
        ]
      db)
 
@@ -351,3 +346,8 @@
 ;; 62 bus accessible nodes
 ;; 14 train accessible nodes
 ;; 4 boat accessible nodes
+
+(defn all-distinct [& args]
+  (let [count1 (count args)
+        count2 (count (into #{} args))]
+    (= count1 count2)))
