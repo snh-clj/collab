@@ -1,5 +1,6 @@
 (ns scotlandyard.core
-  (:require [clojure.set :as set]))
+  (:require [clojure.set :as set]
+            [datascript.core :as d]))
 
 (def board
   {1 {:taxi #{8 9} :bus #{58 46} :train #{46}}
@@ -248,6 +249,50 @@
                   k)))
    sort
    reverse))
+
+
+(defn datom-db-board [b]
+  (let [db (d/empty-db
+            (zipmap modes
+                    (repeat {:db/valueType :db.type/ref
+                             :db/cardinality :db.cardinality/many})))
+        datoms (for [[src dst-map] b
+                     [mode dsts] dst-map
+                     dst dsts]
+                 [:db/add src mode dst])]
+    (d/db-with db datoms)))
+
+#_
+(d/q '[:find ?n ?m
+       :where
+       [116 ?m ?b]
+       [?b ?m ?c]
+       [?c ?m ?d]
+       [?d ?m ?n]
+       [(even? ?b)]
+       [(even? ?c)]
+       [(even? ?d)]
+       [(even? ?n)]
+       ]
+     db)
+
+#_
+(d/q '[:find ?dst
+       :in % $
+       :where
+       (trains 67 ?dst)]
+   '[[(trains ?src ?src2)
+       [?src :train ?src2]]
+     [(trains ?src ?src2)
+       [?src :train ?t]
+       (trains ?t ?src2)]]
+   db)
+
+#_
+(defn all-distinct? [& args]
+  (let [set1 (into #{} args)
+        set2 (into #{} (distinct args))]
+    (= set1 set2)))
 
 (defn degree-sorted-mode [b mode]
   (->>
