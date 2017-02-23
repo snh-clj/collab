@@ -266,19 +266,143 @@
                  [:db/add src mode dst])]
     (d/db-with db datoms)))
 
+(def db (datom-db-board board))
+
+;; https://github.com/Datomic/mbrainz-sample
+;; https://github.com/Datomic/mbrainz-sample/wiki/Queries#graph-walk
+(defn possible-routes-of-three [db src dst]
+  (d/q '[:find ?ticket ?ticket1 ?ticket2
+         :in ?src ?dst $
+         :where
+         [?src ?ticket ?dst1]
+         [?dst1 ?ticket1 ?dst2]
+         [?dst2 ?ticket2 ?dst]]
+       src
+       dst
+       db)
+  )
+
+(defn unpossible-routes-of-n [db src dst n]
+  (d/q '{:find [?ticket0 ?ticket1 ?ticket2]
+         :in [ ?station0 ?station3 $]
+         :where [[?station0 ?ticket0 ?station1]
+                 [?station1 ?ticket1 ?station2]
+                 [?station2 ?ticket2 ?station3]]}
+       src
+       dst
+       db)
+  )
+
+(defn possible-routes-of-n-from-here-to-there
+  "Given a 'src and 'dst, and a specified number of hops,
+return all paths from 'src to 'dst."
+  [db src dst n]
+  (let [find-clause (map (fn [x] (symbol (str "?ticket" x)))
+                         (range n))
+        where-clause (map (fn [x]
+                            [(symbol (str "?station" x))
+                             (symbol (str "?ticket" x))
+                             (symbol (str "?station" (inc x)))])
+                      (range n))]
+    (d/q {:find find-clause
+           :in ['?station0 (symbol (str "?station" n)) '$]
+           :where where-clause}
+         src
+         dst
+         db)))
+
 #_
-(d/q '[:find ?n ?m
-       :where
-       [116 ?m ?b]
-       [?b ?m ?c]
-       [?c ?m ?d]
-       [?d ?m ?n]
-       [(even? ?b)]
-       [(even? ?c)]
-       [(even? ?d)]
-       [(even? ?n)]
-       ]
-     db)
+(possible-routes-of-n-from-here-to-there db 67 68 3)
+#_
+(possible-routes-of-n-from-here-to-there db 67 68 7)
+
+#_
+(defn all-possible-paths [db a b]
+  (d/q '{:find [?route-coll]
+        :in [% $ ?a ?b ?empty-set]
+        :where [(a->b ?a ?b ?route-coll ?empty-set)]}
+
+       '[[(a->b ?src ?dst ?route-coll ?route-set)
+          [?src ?mode ?dst]
+          [(clojure.core/conj ?route-coll ?mode) ?route-coll]
+          [(clojure.core/conj ?route-set ?mode) ?route-set]]
+         [(a->b ?src ?dst ?route-coll ?route-set)
+          [?src ?mode ?intermediate]
+          [(clojure.core/conj ?route-coll ?mode) ?new-route-coll]
+          [(clojure.core/conj ?route-set ?mode) ?new-route-set]
+          (a->b ?intermediate ?dst ?new-route-coll ?new-route-set)]]
+       db
+       a
+       b
+       #{})
+  )
+
+(defn all-possible-paths-nope [db a b]
+  (d/q '{:find [?route-coll]
+        :in [% $ ?a ?b ?empty-set]
+        :where [(a->b ?a ?b ?stations-visited-set ?empty-set)]}
+
+       '[[(a->b ?src ?dst ?route-coll ?stations-visited-set)
+          [?src ?mode ?dst]
+          [(clojure.core/conj ?route-coll ?mode) ?route-coll]
+          [(clojure.core/conj ?stations-visited-set ?dst) ?stations-visited-set]]
+         [(a->b ?src ?dst ?route-coll ?stations-visited-set)
+          [?src ?mode ?intermediate]
+          [(clojure.core/conj ?route-coll ?mode) ?new-route-coll]
+          [(clojure.core/conj ?stations-visited-set ?dst) ?new-stations-visited-set]
+          (a->b ?intermediate ?dst ?new-route-coll ?new-stations-visited-set)]]
+       db
+       a
+       b
+       #{})
+  )
+
+(defn all-possible-paths [db a b]
+  (d/q '{:find [?stations-visited-set]
+        :in [% $ ?a ?b ?empty-set]
+        :where [(a->b ?a ?b ?stations-visited-set ?empty-set)]}
+
+       '[[(a->b ?src ?dst ?stations-visited-set)
+          [?src ?mode ?dst]
+          [(clojure.core/conj ?stations-visited-set ?dst) ?stations-visited-set]]
+         [(a->b ?src ?dst ?stations-visited-set)
+          [?src ?mode ?intermediate]
+          [(clojure.core/conj ?stations-visited-set ?dst) ?new-stations-visited-set]
+          (a->b ?intermediate ?dst ?new-stations-visited-set)]]
+       db
+       a
+       b
+       #{})
+  )
+
+(defn four-possible-paths [db a b]
+  (d/q '{:find [?route-set]
+        :in [% $ ?a ?b ?empty-set]
+        :where [(a->b ?a ?b ?route-set)]}
+
+       '[[(a->b ?src ?dst ?route-set)
+          [?src ?mode ?dst]
+          [(clojure.core/conj ?route-set ?mode) ?route-set]]
+         [(a->b ?src ?dst ?route-set)
+          [?src ?mode ?intermediate]
+          [?intermediate ?mode2 ?dst]
+          [(clojure.core/conj ?route-set ?mode ?mode2) ?route-set]]
+         [(a->b ?src ?dst ?route-set)
+          [?src ?mode ?intermediate1]
+          [?intermediate1 ?mode2 ?intermediate2]
+          [?intermediate2 ?mode3 ?dst]
+          [(clojure.core/conj ?route-set ?mode ?mode2 ?mode3) ?route-set]]
+         #_
+         [(a->b ?src ?dst ?route-set)
+          [?src ?mode ?intermediate]
+          [(clojure.core/conj ?route-set ?mode) ?new-route-set]
+          (a->b ?intermediate ?dst ?new-route-set)]]
+       db
+       a
+       b)
+  )
+
+;; https://hashrocket.com/blog/posts/using-datomic-as-a-graph-database
 
 #_
 (d/q '[:find ?dst

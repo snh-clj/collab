@@ -280,17 +280,68 @@
        ]
      db)
 
+"Find number of destinations reachable from train station #67"
 #_
-(d/q '[:find ?dst
-       :in % $
+(d/q '[:find (count ?dst)
+       :in ?start % $
        :where
-       (trains 67 ?dst)]
-   '[[(trains ?src ?src2)
-       [?src :train ?src2]]
-     [(trains ?src ?src2)
-       [?src :train ?t]
-       (trains ?t ?src2)]]
-   db)
+       (trains ?start ?dst)]
+
+     67
+
+     '[[(trains ?src ?src2)
+        [?src :train ?src2]]
+       [(trains ?src ?src2)
+        [?src :train ?t]
+        (trains ?t ?src2)]]
+     db)
+
+"Find shortest distance in from source to destination"
+#_
+(d/q '[:find ?src ?b ?dst
+       :in ?src ?dst $
+       :where
+       [?src ?m1 ?dst]
+       [?src ?m2 ?b]
+       [?b ?m3 ?dst]
+       ]
+
+     67
+     51
+
+     db)
+
+(defn query-hops [n]
+  (let [syms (vec (map #(symbol (str "?" %)) (range (+ n n 1))))
+        query `[:find ~@syms
+                :in ~(first syms) ~(last syms) ~'$
+                :where ~@(partition 3 2 syms)]]
+    (println query)
+    query))
+
+(defn show-paths [db n src dst]
+
+  (let [hops (mapcat #(d/q % src dst db)
+                     (map query-hops (range 1 (inc n))))]
+    (set hops)))
+
+     #_'[[(travel ?a ?b)
+        [?a ?m1 ?b]]
+       [(travel ?a ?c)
+        [?a ?m2 ?b]
+        [?b ?m3 ?c]]]
+
+(defn shortest-paths [db src dst]
+  (loop [n 1]
+    (let [ans (d/q (query-hops n) src dst db)]
+      (if (seq ans)
+        ans
+        (recur (inc n))))))
+
+(d/q '[:find (count ?src)
+       :in $
+       :where [?src :train ?dst]]
+     db)
 
 ;; Find and show count for most options in three moves
 #_

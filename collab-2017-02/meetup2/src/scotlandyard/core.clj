@@ -302,6 +302,17 @@
        [?b ?m3 ?dst]]
      114
      db)
+
+;; What happens without distinct.
+#_
+(d/q '[:find ?m1 ?m2 ?m3 (count-distinct ?dst) ?dst
+       :in ?start $
+       :where
+       [?start ?m1 ?a]
+       [?a ?m2 ?b]
+       [?b ?m3 ?dst]]
+     114
+     db)
 #_
 (defn all-distinct? [& args]
   (let [set1 (into #{} args)
@@ -350,6 +361,73 @@
 ;; max per mode, max all modes
 ;; - distant or twisty busses make for easy mistakes
 
+#_
+(d/q
+  `[:find
+    (distinct ?i) (count ?i)
+    :where
+    [?i :boat ?n]]
+  db)
+#_
+(d/q
+  `[:find [ ?i ?n]
+    :where 
+    [?i :boat ?n]
+    ]
+  db
+  )
+#_
+(d/q
+  `[:find (count ?i) (distinct ?i)
+    :where
+    [?i :bus ?n]
+    [?i :taxi ?n]]
+  db
+  )
+
+#_
+(d/q
+  `[:find  ?i ?n
+    :where
+    [?i :bus ?n]
+    [?i :train ?n]]
+  db
+  )
+#_
+(d/q 
+  `[:find ?i ?j ?k
+    :where
+    [?i :train ?b]
+    [?j :bus ?c]
+    [?k :boat ?d]
+    ]
+  db
+  )
+
+#_
+(pprint 
+  (d/q
+    `[:find ?b ?m ?c
+      :where
+      [?a :boat ?b]
+      [?b ?m ?c]
+      ]
+    db
+    ))
+
+#_
+(d/q
+  '[:find ?dst
+    :in % $
+    :where
+    (bus ?dst ?dst)
+    ]
+  '[[(bus ?src ?src2)
+     [?src :bus ?src2]]
+    [(bus ?src ?src2)
+     [?src :bus ?b]
+     (bus ?b ?src2)]]
+  db)
 
 ;; stats:
 ;; 345 taxi routes

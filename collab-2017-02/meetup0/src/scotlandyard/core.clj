@@ -302,6 +302,55 @@
        [?b ?m3 ?dst]]
      114
      db)
+
+;; a query to find the shortest path from one node to another
+;; TODO: problematic - wanted count or set but doesn't terminate
+
+(defn foo [a b]
+  (prn :foo a b)
+  (into a b))
+#_
+(d/q '[:find ?nodes ?src ?dst
+       :in % $
+       :where
+       (hop #{} ?nodes ?src ?dst)]
+     '[[(hop ?n ?d ?src ?dst)
+        [(= ?n ?d)]
+        [?src ?m ?dst]]
+       [(hop ?n ?d ?src ?dst)
+        [?src ?m ?next]
+        [(into ?n ?next) ?n2]
+        (hop ?n2 ?d ?next ?dst)]]
+     db)
+
+;; rank nodes according to reachability (average of shortest paths to each node from each other node)
+
+
+;; alternate: one-hop reachability (rank nodes according to how many nodes they can get to in a single hop)
+#_
+(clojure.pprint/pprint
+ (let [m (group-by first
+                   (d/q '[:find (count-distinct ?dst) ?src
+                          :where
+                          [?src ?m ?dst]]
+                        db))
+       m (zipmap (keys m)
+                 (map #(into #{} (map second %)) (vals m)))
+       m (into (sorted-map) m)]
+   m))
+
+;; one we discussed last week: given a known starting point and a sequence of known transportation modes, where could Mr. X be?
+
+#_
+(d/q '[:find ?m1 ?m2 ?m3 (count-distinct ?dst) (distinct ?dst)
+       :in ?start $
+       :where
+       [?start ?m1 ?a]
+       [?a ?m2 ?b]
+       [?b ?m3 ?dst]]
+     114
+     db)
+
 #_
 (defn all-distinct? [& args]
   (let [set1 (into #{} args)
