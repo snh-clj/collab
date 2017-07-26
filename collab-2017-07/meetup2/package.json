@@ -1,0 +1,8 @@
+{
+    "name": "ehlo-werld",
+    "version": "0.0.1",
+    "description": "Demonstrate some CLJS stuff with lumo",
+    "dependencies": {
+        "shelljs": "latest"
+    }
+}
