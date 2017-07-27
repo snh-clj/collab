@@ -23,6 +23,7 @@
 
 ;; See https://github.com/shelljs/shelljs
 (defonce shell (node/require "shelljs"))
+(defonce nodesplit (node/require "split"))
 
 (defn println-stderr
   "See https://cljs.github.io/api/cljs.core/STARprint-err-fnSTAR"
@@ -30,9 +31,9 @@
   (binding [*print-fn* *print-err-fn*]
     (apply println args)))
 
-(println-stderr :which-whatsit? (.which shell "whatsit"))
-(println-stderr :which-git? (.which shell "git"))
-(println-stderr :etc-issue (.cat shell "/etc/issue"))
+#_(println-stderr :which-whatsit? (.which shell "whatsit"))
+#_(println-stderr :which-git? (.which shell "git"))
+#_(println-stderr :etc-issue (.cat shell "/etc/issue"))
 
 ;; TODO: Why doesn't this work?
 #_(println-stderr :exec-node-v (.exec shell "node -v"))
@@ -45,6 +46,24 @@
   (let [w (t/writer :json)
         r (t/reader :json)]
     (t/read r (t/write w x))))
+
+
+"
+process.stdin.pipe(require('split')()).on('data', processLine)
+
+function processLine (line) {
+  console.log(line + '!')
+}
+"
+
+(defn process-line
+  [s]
+  (prn :line s))
+
+(defn handle-stdin [cb]
+  (let []
+    (.setEncoding js/process.stdin "utf8")
+    (.on (.pipe js/process.stdin (nodesplit)) "data" process-line)))
 
 (defn read-stdin-into-memory
   "TODO: Whoa, scary! We're reading *all of STDIN* into memory.
@@ -89,7 +108,7 @@
 (if (not (delicious-arguments (vec *command-line-args*)))
   (prn "Whoa, there. Garbage arguments!! Here are the delicious arguments: " delicious-arguments)
   (let [[op input-data-type] *command-line-args*]
-    (read-stdin-into-memory
+    (handle-stdin
      (partial transit-some-stuff op input-data-type))))
 
 

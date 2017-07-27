@@ -3,6 +3,7 @@
     "version": "0.0.1",
     "description": "Demonstrate some CLJS stuff with lumo",
     "dependencies": {
-        "shelljs": "latest"
+        "shelljs": "latest",
+        "split": "latest"
     }
 }
