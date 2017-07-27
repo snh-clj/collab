@@ -1,8 +1,9 @@
 {
-    "name": "ehlo-werld",
-    "version": "0.0.1",
-    "description": "Demonstrate some CLJS stuff with lumo",
-    "dependencies": {
-        "shelljs": "latest"
-    }
+  "name": "ehlo-werld",
+  "version": "0.0.1",
+  "description": "Demonstrate some CLJS stuff with lumo",
+  "dependencies": {
+    "shelljs": "latest",
+    "docopt": "~0.6.2"
+  }
 }

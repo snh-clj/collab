@@ -16,7 +16,51 @@
             [cljs.reader :as reader]
             [lumo.core :refer [*command-line-args*]]))
 
+(defonce version "0.1")
+
 (node/enable-util-print!)
+
+
+;; Load the Javascript docopt module
+(defonce docopt (node/require "docopt"))
+
+;; Goal: use docopt to parse the described command line
+;; 1. install javascript impl of docopt (done)
+;; 2. require docopt (done)
+;; 3. describe usage based on delicious-arguments below (done)
+
+(def lumo-demo1-usage
+  "Lumo Demo1 (showing how to use transit to serialize and deserialize)
+
+  Usage:
+      lumo-demo1.cljs [--debug-argv] write-transit (string | json-clj | json-transit | edn)
+      lumo-demo1.cljs [--debug-argv] read-transit
+      lumo-demo1.cljs [--debug-argv] -h | --help
+      lumo-demo1.cljs [--debug-argv] --version
+
+  Options:
+      -h --help      Show this screen.
+      --version      Show version.
+      --debug-argv   Show the parsed command line.
+
+  Examples:
+      cat data.txt | ./lumo-demo1.cljs write-transit string | ./lumo-demo1.cljs read-transit
+      cat data.json | ./lumo-demo1.cljs write-transit json-clj | ./lumo-demo1.cljs read-transit
+      cat data.json | ./lumo-demo1.cljs write-transit json-transit | ./lumo-demo1.cljs read-transit
+      cat data.edn | ./lumo-demo1.cljs write-transit edn | ./lumo-demo1.cljs read-transit
+  ")
+
+(def cli-map (js->clj
+               (.docopt docopt
+                        lumo-demo1-usage
+                        #js{:version version
+                            :argv (clj->js (vec *command-line-args*))})
+               :keywordize-keys true))
+
+(when (:--debug-argv cli-map)
+  (println "\n Parsed command line:")
+  (pprint cli-map))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Demonstrate running shell sub-commands, capturing results, and printing to STDERR
