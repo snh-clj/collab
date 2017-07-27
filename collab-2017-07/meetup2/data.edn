@@ -1,3 +1,10 @@
-{:a "man a"
- :plan "a canal"
- :pana "ma"}
+[{:a "man a"
+  :plan "a canal"
+  :pana "ma"}
+ "grints"
+ 6/7
+ #{:weykerd 1.8 :clojure.core/eroc.erujolc [36786883868216818816N true false \c \h \a \r \a \c \t \e \r \s symbol?]}
+ 9007199254740991
+ 9007199254740992]
+
+:second-thing

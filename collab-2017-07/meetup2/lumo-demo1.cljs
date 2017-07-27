@@ -30,14 +30,14 @@
   (binding [*print-fn* *print-err-fn*]
     (apply println args)))
 
-(println-stderr :which-whatsit? (.which shell "whatsit"))
-(println-stderr :which-git? (.which shell "git"))
-(println-stderr :etc-issue (.cat shell "/etc/issue"))
+(comment
+  (println-stderr :which-whatsit? (.which shell "whatsit"))
+  (println-stderr :which-git? (.which shell "git"))
+  (println-stderr :etc-issue (.cat shell "/etc/issue")))
 
 ;; TODO: Why doesn't this work?
 #_(println-stderr :exec-node-v (.exec shell "node -v"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Demonstrate reading STDIN to make a pipe-able program
@@ -45,6 +45,8 @@
   (let [w (t/writer :json)
         r (t/reader :json)]
     (t/read r (t/write w x))))
+
+(def silly-delimiter "UNREPRESENTABLE-STRING")
 
 (defn read-stdin-into-memory
   "TODO: Whoa, scary! We're reading *all of STDIN* into memory.
@@ -57,12 +59,17 @@
     (.setEncoding js/process.stdin "utf8")
     (.on js/process.stdin "data"
          (fn [data]
-           (swap! stdinput #(str % data))))
+           (swap! stdinput #(str % data))
+           (let [chunks (split @stdinput silly-delimiter)]
+             (dorun (map cb (butlast chunks)))
+             (reset! stdinput (last chunks)))))
 
     (.on js/process.stdin "end"
          #(cb @stdinput)
          )))
 
+;; http://data.consumerfinance.gov/api/views.json
+;; cat delimited-silly.json | ./lumo-demo1.cljs write-transit json-clj | ./lumo-demo1.cljs read-transit
 (defn transit-some-stuff [op stuff-type stuff]
   #_(pprint {:op op :stuff-type stuff-type :stuff stuff})
   (condp = op
@@ -71,8 +78,6 @@
                                     (condp = stuff-type
                                       "string" stuff
                                       "json-clj" (js->clj (.parse js/JSON stuff) :keywordize-keys true)
-                                      "json-transit" (t/read (t/reader :json) stuff)
-                                      "edn" (reader/read-string stuff)
                                       )))
     ;; 'prn clj data
     "read-transit" (prn (t/read (t/reader :json) stuff))
