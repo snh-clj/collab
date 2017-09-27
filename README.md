@@ -10,6 +10,10 @@ seed the per-group directories named `meetup1` through `meetup9`.
 
 ## Collab Events:
 
+### collab-2017-09
+
+4Clojure problems
+
 ### collab-2015-09
 
 bonus-round - A selection of problems from previous collaborations
