@@ -12,7 +12,7 @@ seed the per-group directories named `meetup1` through `meetup9`.
 
 ### collab-2017-09
 
-4Clojure problems
+4Clojure problems: 95, 96, 60, 69, 121, 195
 
 ### collab-2015-09
 
