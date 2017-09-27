@@ -1,4 +1,4 @@
-## 4Colojure problems
+## 4Clojure problems
 
 `src/sn/core.clj` contains a set of selected collaboration problems
 collected from 4Clojure (http://www.4clojure.com/). Select the
