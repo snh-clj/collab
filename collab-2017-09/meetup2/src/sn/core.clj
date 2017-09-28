@@ -9,7 +9,22 @@
   Write a predicate which checks whether or not a given sequence represents a binary tree. Each node in the tree must have a value, a left child, and a right child.
   (binary tree: https://en.wikipedia.org/wiki/Binary_tree)"
   [s]
-  ::no-implementation)
+  (if (= 3 (count s))
+    (every? true?
+            (map #(if (coll? %)
+                    (four-clojure-95 %)
+                    (nil? %))
+                 (drop 1 s)))
+    false)
+  #_ ; broken! just totally broken.
+  (if (= 3 (count s))
+    (every? true?
+           (map #(if (coll? %)
+                   (four-clojure-95 %)
+                   true)
+                s))
+    false))
+
 
 (defn four-clojure-96
   "http://www.4clojure.com/problem/96 -- Beauty is Symmetry
@@ -24,8 +39,11 @@
   predicate to determine whether or not a given binary tree is
   symmetric. (see Problem #95 above for a reminder on the tree
   representation we're using)."
-  [t]
-  ::no-implementation)
+  [[_ l r]]
+  (let [flip-you (fn nf [[v l r]]
+                   [v (when r (nf r)) (when l (nf l))])
+        flipped-l (flip-you l)]
+    (= flipped-l r)))
 
 (defn four-clojure-55
   "http://www.4clojure.com/problem/55 -- Count Occurrences
@@ -38,7 +56,11 @@
   Write a function which returns a map containing the number of occurences of each
   distinct item in a sequence."
   [s]
-  ::no-implementation)
+  (reduce
+   (fn [r x]
+     (update r x (fnil inc 0)))
+   {}
+   s))
 
 (defn four-clojure-69
   "http://www.4clojure.com/problem/69 -- Merge with a Function
@@ -56,7 +78,19 @@
   combined with the mapping in the result by calling (f val-in-result
   val-in-latter)"
   [f & maps]
-  ::no-implementation)
+  (reduce
+   (fn [outer-reduction-val next-map]
+     (reduce
+      (fn [inner-reduction-val [k v]]
+        (update inner-reduction-val
+                k
+                #(if % (f % %2) %2)
+                v))
+      outer-reduction-val
+      next-map)
+     )
+   {}
+   maps))
 
 (defn four-clojure-121
   "http://www.4clojure.com/problem/121 -- Universal Computation Engine
