@@ -14,7 +14,7 @@
 (deftest four-clojure-95-test
   (testing "4Clojure #95"
     (let [__ sn/four-clojure-95]
-      (is (= (__ '(:a (:b nil nil)))
+      (is (= (__ '(:a (:b nil nil) nil))
              true))
       (is (= (__ '(:a (:b nil nil)))
              false))

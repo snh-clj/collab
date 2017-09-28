@@ -1,4 +1,21 @@
-(ns sn.core)
+(ns sn.core
+  (:require [clojure.core.match :refer [match]]))
+
+(defn bin-tree?
+  [s]
+  (when (and (seqable? s) (= 3 (count s)))
+    (let [[_ L R] s]
+      (and (or (nil? L) (bin-tree? L))
+           (or (nil? R) (bin-tree? R))))))
+
+(defn bin-tree2?
+  [s]
+  (match s
+         ([_ a b] :seq)
+         (and (bin-tree2? a)
+              (bin-tree2? b))
+         nil true
+         :else false))
 
 (defn four-clojure-95
   "http://www.4clojure.com/problem/95 -- To Tree, or not to tree
@@ -9,7 +26,7 @@
   Write a predicate which checks whether or not a given sequence represents a binary tree. Each node in the tree must have a value, a left child, and a right child.
   (binary tree: https://en.wikipedia.org/wiki/Binary_tree)"
   [s]
-  ::no-implementation)
+  (boolean (bin-tree2? s)))
 
 (defn four-clojure-96
   "http://www.4clojure.com/problem/96 -- Beauty is Symmetry
