@@ -9,7 +9,12 @@
   Write a predicate which checks whether or not a given sequence represents a binary tree. Each node in the tree must have a value, a left child, and a right child.
   (binary tree: https://en.wikipedia.org/wiki/Binary_tree)"
   [s]
-  ::no-implementation)
+  (cond (nil? s) true
+        (and (coll? s)
+             (= (count s) 3)
+             (four-clojure-95 (second s))
+             (four-clojure-95 (nth s 2))) true
+        :else false))
 
 (defn four-clojure-96
   "http://www.4clojure.com/problem/96 -- Beauty is Symmetry
