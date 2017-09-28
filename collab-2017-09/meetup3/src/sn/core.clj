@@ -38,7 +38,11 @@
   Write a function which returns a map containing the number of occurences of each
   distinct item in a sequence."
   [s]
-  ::no-implementation)
+  (->> s
+      sort
+      (partition-by identity)
+      (map (fn [x] {(first x) (count x)}))
+      (into {})))
 
 (defn four-clojure-69
   "http://www.4clojure.com/problem/69 -- Merge with a Function
