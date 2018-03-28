@@ -1,0 +1,48 @@
+<html>
+  <body>
+
+    <svg width="600px" height="400px">
+
+      <defs>
+        <!-- DEFINE AN ARROW THAT WE CAN PLACE AT THE END OF EDGES. -->
+        <!-- USE REFX TO MOVE THE ARROW'S TIP TO THE END OF THE PATH. -->
+        <marker
+           orient="auto"
+           markerHeight="12"
+           markerWidth="12"
+           refY="0"
+           refX="9"
+           viewBox="0 -5 10 10"
+           id="ARROW_ID"
+           style="fill: red; fill-opacity: 0.5;">
+
+          <path d="M0, -5L10, 0L0, 5"></path>
+
+        </marker>
+      </defs>
+
+      <!-- DEFINE A PATH. SET ITS END MARKER TO THE ARROW'S ID. -->
+      <!-- SET FILL NONE TO DRAW A LINE INSTEAD OF A SHAPE. -->
+      <path
+         d="M100,100 A300,250 0 0,1 500,300"
+         style="fill:none; stroke:grey; stroke-width:2px;"
+         id="PATH_ID"
+         marker-end="url(#ARROW_ID)" />
+
+      <!-- DEFINE A TEXT ELEMENT AND SET FONT PROPERTIES. -->
+      <!-- USE DY TO MOVE TEXT ABOVE THE PATH. -->
+      <text
+         style="text-anchor:middle; font: 16px sans-serif;"
+         dy="-12">
+
+        <!-- DEFINE A TEXT PATH FOLLOWING THE PATH DEFINED ABOVE. -->
+        <!-- USE STARTOFFSET TO CENTER TEXT. -->
+        <textPath
+           xlink:href="#PATH_ID"
+           startOffset="50%">Centered edge label</textPath>
+      </text>
+
+    </svg>
+
+  </body>
+  </html>
