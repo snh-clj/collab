@@ -187,12 +187,11 @@
     (fn []
       (let [current-graph (:graph @ratom)]
         [:div {:class "container"}
-         "Welcome to reagent-pigwheel."
+         "Welcome to reagent-figwheel."
          [ui-controls]
          [graph-display-text current-graph]
-         #_
          (graph-display-fdg-element)
-         (when (and false
+         (when (and ;false
                     current-graph
                     (not= current-graph @graph-render-hack))
            ;; Don't redraw our D3 graph constantly. Whee!
@@ -218,7 +217,7 @@
   (println (graph->d3-format (:graph @app-state)))
   ;; If you're going to display the graph, you need to re-render it
   ;; after a code reload. Otherwise your state gets weird.
-  #_
+  
   (js/fdg_go (clj->js (graph->d3-format (:graph @app-state))))
   )
 

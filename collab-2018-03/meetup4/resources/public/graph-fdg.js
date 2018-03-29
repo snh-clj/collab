@@ -41,12 +41,18 @@ var fdg_go = function(graph) {
         node.append("title")
             .text(function(d) { return d.id; });
 
-        node.append("text")
+        var label = svg.append("g")
+            .attr("class", "nodes")
+            .selectAll("text")
+            .data(graph.nodes)
+            .enter()
+            .append("text")
             .text(function(d) { return d.id; })
-            .attr("x", function(d) { return d.cx; })
-            .attr("y", function(d) { return d.cy; })
+/*            .attr("x", function(d) { return d.cx; })
+            .attr("y", function(d) { return d.cy; }) */
+            .attr("text-anchor" , "middle" )
             .attr("font-family", "sans-serif")
-            .attr("font-size", "20px")
+            .attr("font-size", "5px")
             .attr("fill", "red");
 
         simulation
@@ -66,6 +72,10 @@ var fdg_go = function(graph) {
             node
                 .attr("cx", function(d) { return d.x; })
                 .attr("cy", function(d) { return d.y; });
+
+            label
+                .attr("x", function(d) { return d.x; })
+                .attr("y", function(d) { return d.y - 10; });
         }
     };
     graph_it(graph);
