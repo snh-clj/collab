@@ -24,7 +24,7 @@ var fdg_go = function(graph) {
             .selectAll("line")
             .data(graph.links)
             .enter().append("line")
-            .attr("stroke-width", 1);
+            .attr("stroke-width", function(d) { return d.value / 100; });
 
         var node = svg.append("g")
             .attr("class", "nodes")
