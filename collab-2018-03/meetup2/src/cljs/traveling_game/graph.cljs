@@ -64,16 +64,31 @@
 (defn graph->undirected
   "Take a directed graph and make it undirected, selecting whichever edge cost comes last."
   [graph]
+  (reduce (fn [r [ab cost]]
+            (let [[a b] (vec ab)]
+              (conj r [a b cost] [b a cost])))
+          []
+          (reduce (fn [r [a b cost]]
+                    (assoc r #{a b} cost))
+                  {}
+                  graph)))
+
+(defn graph->undirected
+  "Take a directed graph and make it undirected, selecting whichever edge cost comes last."
+  [graph]
   (->> graph
+
        (reduce
         (fn [r [a b cost]]
           (assoc r #{a b} cost))
         {})
+
        (reduce
         (fn [r [ab cost]]
           (let [[a b] (vec ab)]
             (conj r [a b cost] [b a cost])))
         [])))
+
 
 (defn travel
   "Given some nodes that have been visited, 'travel simultaneously
@@ -81,15 +96,16 @@
   distinct nodes reachable from everywhere you've been."
   [visited-nodes graph]
   (->> graph
-       (filter
-        #(-> % first visited-nodes))
+       (filter #(-> % first visited-nodes))
        (map second)
-       distinct))
+       (distinct)))
 
 (defn graph->nodes
   "Extract the node names from the given 'graph, returning a 'set."
   [graph]
-  (->> graph (mapcat #(take 2 %)) set))
+  (->> graph
+       (mapcat #(take 2 %))
+       set))
 
 (defn connected-from?
   "Determine if the given 'graph is connected (i.e., every node is

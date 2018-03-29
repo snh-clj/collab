@@ -187,7 +187,7 @@
     (fn []
       (let [current-graph (:graph @ratom)]
         [:div {:class "container"}
-         "Welcome to reagent-pigwheel."
+         "Welcome to a graph"
          [ui-controls]
          [graph-display-text current-graph]
          #_
