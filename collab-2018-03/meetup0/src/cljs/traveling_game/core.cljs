@@ -58,6 +58,23 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; UI elements
 
+(defn clean-path? [path]
+  (let [nodes (-> @app-state :graph tgg/graph->nodes)
+        last-path-elem (last path)]
+    (->> nodes (filter #(str/starts-with? % last-path-elem)) seq)))
+
+(defn valid-path? [path]
+  (let [nodes (-> @app-state :graph tgg/graph->nodes)
+        last-path-elem (last path)]
+    (if (and (nodes last-path-elem) (< 1 (count path)))
+      (let [graph-map (tgg/graph->map (:graph @app-state))
+            last-edge (->> path reverse (take 2) reverse vec)]
+        (graph-map last-edge))
+      true ; the last element in the current path isn't a full node
+           ; name, so trust that they're headed in a reasonable
+           ; direction (for now)
+      )))
+
 (defn proposed-solution
   "Display a text input box, in which the user can type the names of
   visited nodes to attempt a solution."
@@ -73,9 +90,13 @@
             ;; pevented the user from typing any space characters, and
             ;; thereby traveling anywhere at all.
             #_#_:value (str/join " " (:proposed-path @app-state))
-            :on-change #(let [input (-> % .-target .-value)]
-                          (swap! app-state assoc :proposed-path (parse-path input))
-                          (set! (.-value (.-target %)) input))}]])
+            :on-change #(let [input (-> % .-target .-value)
+                              parsed-path (parse-path input)]
+                          (if (and (clean-path? parsed-path) (valid-path? parsed-path))
+                            (do (swap! app-state assoc :proposed-path parsed-path)
+                                (set! (.-value (.-target %)) input))
+                            (set! (.-value (.-target %)) "")
+                            #_(set! (.-value (.-target %)) (apply str (butlast input)))))}]])
 
 (defn graph-node
   "Display an individual graph node as a textual list item."
