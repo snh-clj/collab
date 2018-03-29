@@ -13,7 +13,8 @@
   :clean-targets ^{:protect false} ["resources/public/js"
                                     "target"]
 
-  :figwheel {:css-dirs ["resources/public/css"]}
+  :figwheel {:css-dirs ["resources/public/css"]
+             :server-port ~(Long/parseLong (System/getenv "LEIN_FIGWHEEL_PORT"))}
 
   :profiles
   {:dev

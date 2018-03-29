@@ -57,6 +57,19 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; UI elements
+;;
+;;
+;;
+
+(defn may [rinput]
+  
+(let [input (clojure.string/capitalize rinput)
+      matches (filter #(.startsWith % input)  (first  (:shortest-path @app-state)))]
+
+(if (= (count matches ) 1) (str (first matches) " ")  input) 
+)
+  )
+
 
 (defn proposed-solution
   "Display a text input box, in which the user can type the names of
@@ -73,9 +86,12 @@
             ;; pevented the user from typing any space characters, and
             ;; thereby traveling anywhere at all.
             #_#_:value (str/join " " (:proposed-path @app-state))
-            :on-change #(let [input (-> % .-target .-value)]
+            :on-change #(let [rinput (-> % .-target .-value)
+                              input  (may rinput)
+
+                              ]
                           (swap! app-state assoc :proposed-path (parse-path input))
-                          (set! (.-value (.-target %)) input))}]])
+                          (set! (.-value (.-target %)) input ))}]])
 
 (defn graph-node
   "Display an individual graph node as a textual list item."
@@ -187,7 +203,7 @@
     (fn []
       (let [current-graph (:graph @ratom)]
         [:div {:class "container"}
-         "Welcome to reagent-pigwheel."
+         "Welcome to reagent-figwheel."
          [ui-controls]
          [graph-display-text current-graph]
          #_
