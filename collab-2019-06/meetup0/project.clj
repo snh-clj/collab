@@ -5,4 +5,5 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :main bermuda.core
   :dependencies [[org.clojure/clojure "1.10.1"]
+                 [org.clojure/spec.alpha "0.2.176"]
                  [zprint "0.4.16"]])
